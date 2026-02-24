@@ -5,7 +5,7 @@ user_invocable: true
 
 # Update Site
 
-Regenerate the claude_log dev blog with fresh Claude Code insights data.
+Regenerate the claude_log dev blog with fresh Claude Code insights data. Each run is archived and content accumulates across runs — posts get richer over time.
 
 ## Steps
 
@@ -20,9 +20,11 @@ Regenerate the claude_log dev blog with fresh Claude Code insights data.
    npx tsx scripts/generate-posts.ts
    ```
    This will:
-   - Generate 7 blog posts from the insights data
-   - Anonymize product/client names (ActionTree, Anchor Fitness, StreamFit, etc.)
-   - Convert second-person voice ("You are...") to first-person ("I'm...")
+   - Archive the current insights.json to `src/data/insights-archive/YYYY-MM-DD.json`
+   - Merge content across ALL archived runs (workflows, friction examples, stories accumulate)
+   - Use latest run for stats/numbers (most accurate)
+   - Anonymize product/client names
+   - Convert second-person voice to first-person
    - Run a leak check for sensitive names
    - Output timeline, stats, and post index
 
@@ -39,10 +41,25 @@ Regenerate the claude_log dev blog with fresh Claude Code insights data.
    ```
    Then verify: `/`, `/journey`, `/setup`, and all 7 post routes under `/posts/`.
 
-6. **Report**: Tell the user what changed — new session counts, new post stats, and any new content.
+6. **Report**: Tell the user what changed — how many archived runs were merged, new session counts, accumulated content stats.
+
+## How Accumulation Works
+
+Each `/insights` run produces different editorial content (different examples, stories, workflows). The generator merges across all archived runs:
+
+- **Stats & numbers**: Always from the latest run (most accurate)
+- **Narrative & key pattern**: Always from the latest run
+- **Impressive workflows**: Union across all runs (deduped by title)
+- **Friction examples**: Accumulated across all runs (deduped by similarity)
+- **Usage patterns & tips**: Union across all runs (deduped by title)
+- **Fun ending**: Picks the one with the most detail
+- **On the horizon**: Union across all runs (deduped by title)
+
+This means posts get richer every time you run `/insights` — new friction examples, new workflows, new stories all get added while stats stay current.
 
 ## Important
 
 - **Slugs are stable**: Never change post slugs. They are used for external linking. The 7 slugs are: `how-i-use-claude-code`, `what-works`, `where-things-go-wrong`, `power-user-tips`, `the-story`, `whats-next`, `the-projects`.
 - **Anonymization**: If /insights reveals new product names, client names, or other identifying details, add them to the `ANONYMIZE_RULES` array in `scripts/generate-posts.ts` before generating.
 - **Voice**: The /insights narrative is written in second person. The generator converts it to first person. If any "You are" or "Your" slips through, fix the `secondToFirstPerson` function.
+- **Archives**: Stored in `src/data/insights-archive/`. One file per day. Safe to commit — they're just JSON.

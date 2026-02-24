@@ -1,0 +1,193 @@
+{
+  "project_areas": {
+    "areas": [
+      {
+        "name": "ActionTree SaaS Platform Development",
+        "session_count": 85,
+        "description": "Core product development for ActionTree, a SaaS platform with dashboard, onboarding flows, agent chat, page editor, pipeline board, and analytics. Claude Code was used extensively for feature implementation (onboarding checklist, ownership transfer, demo lobby, collapsible sections, mobile responsive design), bug fixing (navigation issues, disappearing UI elements, cookie errors), and creating PRs. This was the primary workstream, heavily leveraging multi-file TypeScript/Next.js edits and iterative code review cycles."
+      },
+      {
+        "name": "MCP Tools, Connectors & Agent Infrastructure",
+        "session_count": 35,
+        "description": "Building and debugging MCP (Model Context Protocol) tools, connectors (Calendly, StreamFit, Google Reviews), and an Evolution Engine for ActionTree's agent system. Claude Code was used to plan and implement new tool endpoints, fix 12+ MCP tool bugs from QA reports, handle database migrations, wire up connectors across multiple agent systems, and push PRs. Sessions involved significant Bash commands for testing and deployment alongside complex multi-file TypeScript changes."
+      },
+      {
+        "name": "Stripe Connect & Billing Integration",
+        "session_count": 15,
+        "description": "Full Stripe Connect integration including building the payment infrastructure, configuring production Stripe settings, fixing deploy bugs, and cost analysis/optimization with prompt caching. Claude Code handled the end-to-end implementation across server and client code, resolved production issues like trailing newlines in Vercel environment variables causing 500 errors, and documented the solution for future reference."
+      },
+      {
+        "name": "Marketing Site, Content & Video Production",
+        "session_count": 25,
+        "description": "Work on a marketing/landing site including features pages with screenshots, OG images, favicon, privacy/terms pages, copy changes, link fixes, Resend email integration, and a dev blog built from Claude Code session data. Additionally, several sessions involved creating Remotion animated explainer videos and demo scripts for ActionTree. Claude Code scaffolded full Remotion projects with scenes and design tokens, though some video planning sessions stalled in exploration without producing output."
+      },
+      {
+        "name": "DevOps, Deployment & Infrastructure",
+        "session_count": 20,
+        "description": "Deployment workflows, Git operations, Supabase migration management, Vercel configuration, Terraform fixes for AWS (EC2 key pair issues), Google OAuth setup, and disk space/file cleanup. Claude Code was used for pushing migrations, resolving Vercel CLI project linking issues, fixing environment variable problems, cherry-picking commits, and managing branch merges. These sessions were typically shorter but critical for keeping production environments running smoothly."
+      }
+    ]
+  },
+  "interaction_style": {
+    "narrative": "You are a **high-velocity, production-oriented builder** who treats Claude Code as a full-stack development partner across an impressive 974 hours of usage. Your dominant pattern is driving **end-to-end feature lifecycles** in single sessions — from planning through implementation, code review, PR creation, and deployment. You frequently chain multiple tasks together in rapid succession: implement a bug fix, run a review, fix the findings, push the PR, then immediately pivot to the next feature. Your TypeScript-heavy workflow (4,169 file touches) across what appears to be a SaaS product with MCP tools, Stripe integration, onboarding flows, and an embeddable chat widget shows you're building something substantial and shipping constantly — 256 commits across ~2 months.\n\nYour interaction style is distinctly **impatient with planning overhead and biased toward action**. A recurring friction pattern shows you interrupting Claude when it falls into exploration or planning loops — multiple sessions ended with you cutting off Claude after it spent 8+ minutes reading files and writing plans without producing code. You clearly prefer Claude to just start building rather than over-analyze. At the same time, you're comfortable giving Claude significant autonomy on execution: the heavy use of **Bash (4,833 calls), TaskCreate (513), and TaskUpdate (1,037)** suggests you let Claude orchestrate complex multi-file changes and parallel sub-agents without micromanaging. You only intervene when something goes wrong — like catching a race condition bug Claude missed, or correcting it when it tried to screenshot localhost instead of production.\n\nYour **bug tolerance is notably high but your patience for repeated mistakes is low**. With 53 buggy code incidents and 47 wrong approach frictions, you clearly accept that fast iteration means fixing things in follow-up rounds. You'll happily do three rounds of bug fixes on a demo page before pivoting to a redesign. But the 34 dissatisfied sessions tend to cluster around Claude's worst habit in your workflow: getting stuck in analysis paralysis. Your most distinctive sessions show a pattern of stacking 4-5 heterogeneous tasks (feature implementation → deployment → bug fix → new planning → git operations) in a single sitting, treating Claude as a tireless pair programmer who should match your pace.",
+    "key_pattern": "You are a fast-shipping founder-developer who chains entire feature lifecycles into single sessions and interrupts Claude the moment it over-plans instead of building."
+  },
+  "what_works": {
+    "intro": "Across nearly 400 sessions and 256 commits over two months, you've built an impressive full-stack development workflow with Claude Code as a deeply integrated engineering partner.",
+    "impressive_workflows": [
+      {
+        "title": "End-to-End Feature Lifecycle Mastery",
+        "description": "You consistently drive features from planning through implementation, code review, PR creation, and deployment all within single sessions. Whether it's a Calendly connector (1,352 lines across 12 files), a full Stripe Connect integration, or mobile responsive overhauls spanning 18 files, you treat Claude as a full-cycle engineering partner rather than just a code generator. Your ability to chain tasks — implement, review, fix, merge, deploy — keeps momentum high and ships features fast."
+      },
+      {
+        "title": "Parallel Sub-Agent Architecture Audits",
+        "description": "You've leveraged advanced agentic patterns like spawning 8 parallel sub-agents for a codebase architecture audit, producing a scored assessment that feeds directly into actionable fix plans. This shows a sophisticated understanding of how to use Claude not just for individual tasks but as an orchestration layer for complex, multi-dimensional analysis across your entire codebase."
+      },
+      {
+        "title": "Rapid Bug-Fix-to-PR Pipeline",
+        "description": "You've developed an incredibly efficient bug fix workflow where you feed Claude a plan or QA report, have it implement fixes across multiple files, run code review, address findings, and push a PR — sometimes completing the entire cycle in under 10 minutes. Your pattern of combining bug fix implementation with inline code review before shipping means you catch issues early while maintaining a high velocity of 256 commits across the period."
+      }
+    ]
+  },
+  "friction_analysis": {
+    "intro": "Your biggest friction patterns are Claude producing buggy code that you have to report back, Claude getting stuck in extended planning loops without shipping code, and workflow missteps around git operations and deployment that slow you down.",
+    "categories": [
+      {
+        "category": "Buggy Code Shipped Without Adequate Verification",
+        "description": "Claude frequently delivers code with runtime bugs that only surface when you test or deploy, forcing you into multiple fix cycles. You could ask Claude to run builds, write quick smoke tests, or verify its own changes more thoroughly before declaring a task done.",
+        "examples": [
+          "Multiple bugs shipped in the embeddable chat demo — importing a client-only function in a server component, a missing env var for the widget URL, and assigning a string instead of a function — all requiring you to report each bug back individually across three rounds of fixes.",
+          "The simulation run insert was not awaited, causing intermittent data loss on Vercel serverless that you had to discover and report yourself, because Claude didn't consider async behavior in a serverless environment."
+        ]
+      },
+      {
+        "category": "Excessive Planning and Exploration Without Producing Output",
+        "description": "In multiple sessions, Claude spent the entire available time reading files and writing plans without generating any actual code, forcing you to interrupt. You could front-load context in your prompt (e.g., specifying key files and desired architecture) and explicitly instruct Claude to skip extended planning and start implementing immediately.",
+        "examples": [
+          "You asked for a Remotion animated explainer video, but Claude spent the entire 8-minute session reading files and planning without producing a single line of Remotion code before you interrupted.",
+          "You asked for a Vercel-hosted dev log blog site, but Claude got stuck in extensive codebase exploration and plan-writing without delivering any code, leading you to interrupt a second time on what was essentially the same task."
+        ]
+      },
+      {
+        "category": "Git and Deployment Workflow Missteps",
+        "description": "Claude makes errors in git operations and deployment steps — pushing to wrong branches, failing to push changes, and struggling with environment configuration — which derails your shipping flow. You could establish explicit workflow instructions (e.g., always push to main after merge, always verify target branch) in your CLAUDE.md or session prompts.",
+        "examples": [
+          "A URL regex bug required a cherry-pick because Claude merged the PR before the fix was pushed, and you had to ask twice about pushing to main because Claude didn't initially push the cherry-pick commit.",
+          "Claude pushed prompt improvements to a feature branch after it had already been merged instead of pushing to main, and separately struggled with Vercel CLI project linking (auto-matching to the wrong project), forcing you to set env vars manually."
+        ]
+      }
+    ]
+  },
+  "suggestions": {
+    "claude_md_additions": [
+      {
+        "addition": "When asked to implement a feature, START CODING IMMEDIATELY. Do not spend more than 2 minutes reading files and planning before producing actual code. If you need to explore, do it incrementally while building.",
+        "why": "Multiple sessions (5+) were derailed by Claude spending entire sessions in planning/exploration loops without producing any code, leading to user interruption and 'not_achieved' outcomes.",
+        "prompt_scaffold": "Add at the top of CLAUDE.md under a ## Core Rules section — this is the highest-priority behavioral fix."
+      },
+      {
+        "addition": "This is a Next.js + TypeScript + Supabase project deployed on Vercel. Always ensure files with JSX use .tsx extension. Always run `npx tsc --noEmit` before committing to catch type errors. Do not use `cookies().delete()` in Server Components — use Server Actions or Route Handlers for cookie mutations.",
+        "why": "Recurring friction across sessions: .ts vs .tsx rename issues, type errors surfacing after implementation, and a production error from cookie deletion in a Server Component — all preventable with upfront guardrails.",
+        "prompt_scaffold": "Add under a ## Tech Stack & Conventions section."
+      },
+      {
+        "addition": "When deploying to Vercel or setting env vars via CLI, always confirm the correct Vercel project is linked first with `vercel link`. Trim all environment variable values with `.trim()` to prevent trailing newline issues.",
+        "why": "Multiple sessions hit friction from Vercel CLI linking to the wrong project and from trailing newlines in env vars causing 500 errors in production.",
+        "prompt_scaffold": "Add under a ## Deployment section."
+      },
+      {
+        "addition": "When working with Supabase migrations, always verify migrations actually executed (not ghost-applied) by checking the actual database state after running them. If Supabase CLI isn't authenticated for cloud push, tell the user immediately rather than proceeding with local-only changes.",
+        "why": "A critical bug fix appeared complete but the migration was ghost-applied (recorded but never executed), requiring a repair migration. Supabase auth issues blocked deploys in multiple sessions.",
+        "prompt_scaffold": "Add under a ## Database / Supabase section."
+      },
+      {
+        "addition": "For git push operations: try SSH first, then HTTPS with `gh auth setup-git` as fallback. Always push to the correct branch (main vs feature branch). Never push to a feature branch that has already been merged.",
+        "why": "Multiple sessions had git push friction — SSH/HTTPS failures, and one session accidentally pushed to an already-merged feature branch instead of main.",
+        "prompt_scaffold": "Add under a ## Git Workflow section."
+      },
+      {
+        "addition": "When using sub-agents/Task tool for parallel work, limit to 4-5 concurrent agents max. Summarize sub-agent results concisely rather than feeding full outputs back into the main context.",
+        "why": "A session dispatching 11+ parallel sub-agents overwhelmed the context window, causing every response to be truncated with 'Prompt is too long' errors.",
+        "prompt_scaffold": "Add under a ## Performance & Context Management section."
+      },
+      {
+        "addition": "Never screenshot localhost URLs — always use the production/deployed URL. Never include hardcoded API keys or secrets in committed code. Always check for sensitive data before committing.",
+        "why": "Sessions hit friction from attempting to screenshot localhost (redirected to login) and from a hardcoded API key nearly being committed in a 62-file commit.",
+        "prompt_scaffold": "Add under a ## Security & Testing section."
+      }
+    ],
+    "features_to_try": [
+      {
+        "feature": "Custom Skills",
+        "one_liner": "Reusable prompts for repetitive workflows triggered by a single /command.",
+        "why_for_you": "You have highly repetitive workflows: creating PRs (11 sessions), running code reviews, and deploying. A /pr skill could combine type-checking, building, committing, and PR creation into one command — eliminating the multi-step friction seen in many sessions.",
+        "example_code": "mkdir -p .claude/skills/pr && cat > .claude/skills/pr/SKILL.md << 'EOF'\n## Create PR Skill\n1. Run `npx tsc --noEmit` and fix any type errors\n2. Run `npm run build` and fix any build errors\n3. Check current branch is not main (abort if so)\n4. Verify all changes are committed\n5. Push to origin with `gh auth setup-git && git push`\n6. Create PR with `gh pr create --fill`\n7. Report the PR URL\nEOF"
+      },
+      {
+        "feature": "Hooks",
+        "one_liner": "Shell commands that auto-run at specific lifecycle events like before committing.",
+        "why_for_you": "With 53 buggy-code friction events and 47 wrong-approach events, auto-running type checks and builds before commits would catch the most common class of errors (TypeScript failures, build breaks) before they're pushed.",
+        "example_code": "Add to .claude/settings.json:\n{\n  \"hooks\": {\n    \"preCommit\": {\n      \"command\": \"npx tsc --noEmit && npm run build\",\n      \"description\": \"Type-check and build before every commit\"\n    }\n  }\n}"
+      },
+      {
+        "feature": "Task Agents",
+        "one_liner": "Claude spawns focused sub-agents for parallel exploration or complex work.",
+        "why_for_you": "Your architecture audit session already used 8 parallel sub-agents successfully. With 42 bug-fix sessions and complex multi-file changes (98 success events), you could use task agents more deliberately — e.g., 'use an agent to investigate the root cause while I describe the symptoms' or for parallel exploration of large codebases before implementation.",
+        "example_code": "Try prompting: \"Use a task agent to explore all the MCP tool handlers and list any that don't properly await async database operations, while you start fixing the ones I already know about in the simulator service.\""
+      }
+    ],
+    "usage_patterns": [
+      {
+        "title": "Break long sessions into focused tasks",
+        "suggestion": "Sessions that try to do 4+ unrelated things often end with the last task interrupted or partially achieved.",
+        "detail": "Many of your 'mostly_achieved' sessions (50 total) follow a pattern: 3-4 tasks are completed successfully, then the final task gets interrupted mid-planning. For example, one session did a demo lobby, bug fixes, cost analysis, AND ownership transfer planning. By starting a fresh session for each major feature, you'll get better focus and cleaner git history. Your 'fully_achieved' sessions (82) tend to be more focused.",
+        "copyable_prompt": "Let's focus on one thing this session: implement [FEATURE]. After we have a working PR, I'll start a new session for the next task."
+      },
+      {
+        "title": "Add 'no planning mode' guardrails for implementation tasks",
+        "suggestion": "Explicitly tell Claude to skip extended planning when you already have a plan or the task is straightforward.",
+        "detail": "At least 5 sessions were rated 'not_achieved' or 'slightly_helpful' because Claude spent 8+ minutes reading files and writing plans without producing code. This is your most consistent frustration pattern. When you already know what you want, be direct about skipping the exploration phase. Your best sessions are the ones where Claude starts coding immediately — like the Calendly connector (12 files, 1,352 lines in one session).",
+        "copyable_prompt": "Skip planning. I already know what I want. Start implementing immediately: [describe feature]. If you hit a blocker, ask me — don't spend time exploring the codebase."
+      },
+      {
+        "title": "Front-load deployment verification",
+        "suggestion": "Ask Claude to verify deployment readiness (env vars, migrations, build) before pushing, not after.",
+        "detail": "Multiple sessions had post-push friction: Vercel env vars with trailing newlines causing 500 errors, migrations failing silently, build failures from server/client component mismatches. You deploy frequently (21 deployment sessions), so adding a pre-deployment checklist prompt would save significant debugging time. The Stripe Connect session and MCP endpoint 500 error are prime examples of issues caught too late.",
+        "copyable_prompt": "Before we push this PR, run through a deployment checklist: 1) Verify the build passes locally, 2) Check if any new env vars are needed, 3) Verify any Supabase migrations will apply cleanly, 4) Confirm no server/client component boundary violations."
+      }
+    ]
+  },
+  "on_the_horizon": {
+    "intro": "With 974 hours across 398 sessions and a clear pattern of increasingly complex multi-step workflows, your Claude Code usage reveals massive untapped potential for autonomous, parallel, and self-validating development pipelines.",
+    "opportunities": [
+      {
+        "title": "Parallel Sub-Agent Architecture Audits and Fixes",
+        "whats_possible": "Your agent-native architecture audit already demonstrated 8 parallel sub-agents scoring a codebase at 59% — but it stopped at diagnosis. Imagine triggering a full audit-to-fix pipeline where parallel agents each own a problem domain (type safety, API contracts, dead code, performance), implement fixes independently against test suites, and converge into a single PR with a confidence-scored changelog. With 53 buggy_code and 47 wrong_approach friction events, autonomous agents that iterate against `tsc --noEmit` and your test runner before surfacing results could eliminate the majority of your shipped bugs.",
+        "how_to_try": "Use Claude Code's sub-agent orchestration via TaskCreate (you already have 513 TaskCreate invocations) combined with Bash tool loops that run type-checking and tests after each fix pass.",
+        "copyable_prompt": "Run a full codebase health audit using parallel sub-agents. Create one sub-agent for each category: (1) TypeScript strict type errors, (2) unused exports and dead code, (3) async/await correctness (especially unawaited promises in serverless contexts), (4) Next.js server/client component boundary violations, (5) environment variable usage safety. Each sub-agent should: scan the codebase, identify all issues, implement fixes, and run `npx tsc --noEmit` after each fix to verify no regressions. After all sub-agents complete, merge all changes, run the full build, and create a single PR with a categorized summary of every fix and its confidence level."
+      },
+      {
+        "title": "Self-Healing Deploy Pipeline with Rollback",
+        "whats_possible": "You had 21 deployment sessions with recurring friction: prerendering failures from useSearchParams, server/client component boundary violations, missing env vars, and Vercel CLI project linking issues. An autonomous deploy agent could run a pre-deploy checklist (validate env vars exist, check server/client boundaries, test SSR paths), deploy to a preview URL, run smoke tests against it using your chrome MCP tool, and either promote to production or auto-rollback with a diagnostic report. This turns your current deploy-debug-hotfix cycle into a single command.",
+        "how_to_try": "Chain Claude Code's Bash tool for build/deploy commands with the mcp__claude-in-chrome__computer tool (already used 560 times) for post-deploy visual and functional verification against the preview URL.",
+        "copyable_prompt": "Implement an autonomous deploy pipeline for this Next.js project. Step 1: Pre-deploy validation — run `npx tsc --noEmit`, check that every `process.env.` reference has a corresponding entry in .env.example, scan for useSearchParams/cookies usage in server components, and verify no client-only imports in server components. Step 2: Deploy to Vercel preview with `vercel --no-wait` and capture the preview URL. Step 3: Wait for deployment to be ready, then use the browser tool to visit the preview URL and check: homepage loads without errors, all navigation links resolve, no console errors in critical paths (dashboard, onboarding, settings). Step 4: If all checks pass, promote with `vercel --prod`. If any check fails, output a detailed diagnostic report with the exact failure, affected files, and a proposed fix. Do not promote on failure."
+      },
+      {
+        "title": "Full Feature Lifecycle in One Prompt",
+        "whats_possible": "Your most successful sessions already chain planning → implementation → build verification → code review → PR creation (like the Calendly connector: 12 files, 1,352 lines, one session). But your friction data shows 47 wrong_approach and 13 misunderstood_request events, often from underspecified intent. An autonomous feature agent that starts with a structured requirements phase, generates a test harness first, implements against those tests iteratively, runs your code review agent, addresses findings, and pushes a ready-to-merge PR would compress your typical 2-3 session feature cycle into a single autonomous run — turning your 82 fully_achieved sessions into 120+.",
+        "how_to_try": "Leverage Claude Code's multi-file editing strength (98 successful multi-file changes) with a test-first workflow that uses Bash to run tests after each implementation phase, self-correcting until green.",
+        "copyable_prompt": "I want to implement a new feature: [DESCRIBE FEATURE]. Follow this autonomous lifecycle: Phase 1 — REQUIREMENTS: Ask me up to 3 clarifying questions before proceeding. Do not skip this. Phase 2 — TEST HARNESS: Write integration and unit tests that define the expected behavior. Run them to confirm they fail for the right reasons. Phase 3 — IMPLEMENTATION: Build the feature across all necessary files (API routes, components, types, migrations). After each file group, run `npx tsc --noEmit` and fix any type errors before continuing. Phase 4 — GREEN TESTS: Run the test suite. If tests fail, analyze the failure, fix the implementation (not the tests), and re-run. Loop until all tests pass. Phase 5 — CODE REVIEW: Review your own changes for security issues (exposed secrets, missing auth checks, SQL injection), performance (N+1 queries, missing indexes), and Next.js best practices (server/client boundaries, proper data fetching). Fix any P0/P1 findings. Phase 6 — PR: Create a well-structured PR with a description covering what changed, why, testing done, and any migration steps. Push and output the PR URL."
+      }
+    ]
+  },
+  "fun_ending": {
+    "headline": "Claude spent an entire session reading files and planning a Remotion animated video... then got interrupted before writing a single line of code",
+    "detail": "The user wanted an animated explainer video for ActionTree built with Remotion. Claude burned through 8 full minutes deep in exploration mode — reading files, writing elaborate plans — without producing any actual output. The user finally interrupted, presumably exasperated. This happened not once but twice across separate sessions, with Claude falling into the same 'planning paralysis' trap both times."
+  },
+  "at_a_glance": {
+    "whats_working": "You've developed a highly effective full-cycle workflow — going from plan to implementation to code review to PR in single sessions, sometimes shipping complex features like connectors and integrations across 12+ files in one sitting. Your use of parallel sub-agents for architecture auditing shows you're thinking about Claude as an orchestration layer, not just a code assistant, and your bug-fix-to-PR pipeline is genuinely fast.",
+    "whats_hindering": "On Claude's side, buggy code that only breaks at runtime is your biggest recurring pain point — things like server/client component boundary violations, unawaited async calls, and type errors that slip through. Claude also has a bad habit of burning entire sessions reading files and writing plans without producing any code. On your side, sessions that stack 4+ unrelated tasks tend to end with the last one interrupted, and Claude sometimes lacks the deployment context (target branch, env var locations, migration state) it needs to avoid git and deploy missteps.",
+    "quick_wins": "Try creating a custom slash command skill for your most common workflow (implement → build check → code review → PR) so Claude follows your exact steps every time without drifting into over-planning. You could also set up a pre-commit hook that auto-runs `tsc --noEmit` and your build command, which would catch the runtime bugs Claude keeps shipping before they hit production.",
+    "ambitious_workflows": "As models get more capable, your architecture audit pattern could evolve into a full audit-to-fix pipeline where parallel agents each own a domain (type safety, dead code, performance), implement fixes against your test suite, and converge into a single PR. Your deploy workflow — currently plagued by env var issues and SSR boundary violations — could become a single command where an agent runs pre-deploy checks, deploys to preview, smoke-tests with your Chrome MCP tool, and either promotes or rolls back automatically."
+  }
+}

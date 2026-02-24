@@ -55,6 +55,7 @@ interface InsightsData {
 const OUTPUT_DIR = path.join(process.cwd(), "src", "data");
 const POSTS_DIR = path.join(OUTPUT_DIR, "posts");
 const INSIGHTS_PATH = path.join(OUTPUT_DIR, "insights.json");
+const ARCHIVE_DIR = path.join(OUTPUT_DIR, "insights-archive");
 
 // ── Anonymization ────────────────────────────────────────────────────
 // Strips product names, client names, and other identifying details.
@@ -764,18 +765,206 @@ function generateTimeline(data: InsightsData): TimelineEvent[] {
   ];
 }
 
+// ── Archive & Merge ──────────────────────────────────────────────────
+// Each /insights run is archived by date. The generator merges content
+// across all runs so posts get richer over time:
+//   - Numbers/stats: always from the latest run (most accurate)
+//   - Workflows, examples, stories: accumulated across all runs
+//   - Duplicates: removed by comparing first 60 chars (lowercased)
+
+function archiveInsights(): void {
+  if (!fs.existsSync(INSIGHTS_PATH)) return;
+  fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+
+  const date = new Date().toISOString().split("T")[0];
+  const archivePath = path.join(ARCHIVE_DIR, `${date}.json`);
+
+  // Don't overwrite if we already archived today
+  if (!fs.existsSync(archivePath)) {
+    fs.copyFileSync(INSIGHTS_PATH, archivePath);
+    console.log(`  Archived insights → ${date}.json`);
+  }
+}
+
+function loadAllInsights(): InsightsData[] {
+  const all: InsightsData[] = [];
+  if (fs.existsSync(ARCHIVE_DIR)) {
+    const files = fs.readdirSync(ARCHIVE_DIR).sort(); // chronological
+    for (const file of files) {
+      if (!file.endsWith(".json")) continue;
+      const raw = fs.readFileSync(path.join(ARCHIVE_DIR, file), "utf-8");
+      all.push(JSON.parse(raw));
+    }
+  }
+  return all;
+}
+
+/** Deduplicate strings by comparing first N chars (lowercased) */
+function dedupeStrings(items: string[], prefixLen = 60): string[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = item.toLowerCase().slice(0, prefixLen).trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Merge multiple insights runs. Latest run wins for stats/narrative,
+ *  all runs contribute examples/workflows/stories. */
+function mergeInsights(runs: InsightsData[]): InsightsData {
+  if (runs.length === 0) throw new Error("No insights data to merge");
+  if (runs.length === 1) return runs[0];
+
+  const latest = runs[runs.length - 1];
+
+  // Accumulate impressive_workflows across runs (dedupe by title)
+  const seenWorkflows = new Set<string>();
+  const allWorkflows: { title: string; description: string }[] = [];
+  // Process latest first so its descriptions take priority
+  for (const run of [...runs].reverse()) {
+    for (const w of run.what_works.impressive_workflows) {
+      if (!seenWorkflows.has(w.title.toLowerCase())) {
+        seenWorkflows.add(w.title.toLowerCase());
+        allWorkflows.push(w);
+      }
+    }
+  }
+
+  // Accumulate friction examples across runs (dedupe categories, merge examples)
+  const frictionMap = new Map<
+    string,
+    { category: string; description: string; examples: string[] }
+  >();
+  for (const run of runs) {
+    for (const cat of run.friction_analysis.categories) {
+      const key = cat.category.toLowerCase();
+      if (frictionMap.has(key)) {
+        const existing = frictionMap.get(key)!;
+        existing.examples.push(...cat.examples);
+        // Use latest description
+        existing.description = cat.description;
+      } else {
+        frictionMap.set(key, {
+          category: cat.category,
+          description: cat.description,
+          examples: [...cat.examples],
+        });
+      }
+    }
+  }
+  // Deduplicate examples within each category
+  const mergedFriction = [...frictionMap.values()].map((cat) => ({
+    ...cat,
+    examples: dedupeStrings(cat.examples),
+  }));
+
+  // Accumulate usage_patterns (dedupe by title)
+  const seenPatterns = new Set<string>();
+  const allPatterns: typeof latest.suggestions.usage_patterns = [];
+  for (const run of [...runs].reverse()) {
+    for (const p of run.suggestions.usage_patterns) {
+      if (!seenPatterns.has(p.title.toLowerCase())) {
+        seenPatterns.add(p.title.toLowerCase());
+        allPatterns.push(p);
+      }
+    }
+  }
+
+  // Accumulate features_to_try (dedupe by feature name)
+  const seenFeatures = new Set<string>();
+  const allFeatures: typeof latest.suggestions.features_to_try = [];
+  for (const run of [...runs].reverse()) {
+    for (const f of run.suggestions.features_to_try) {
+      if (!seenFeatures.has(f.feature.toLowerCase())) {
+        seenFeatures.add(f.feature.toLowerCase());
+        allFeatures.push(f);
+      }
+    }
+  }
+
+  // Accumulate claude_md_additions (dedupe by first 60 chars of addition)
+  const allAdditions = dedupeStrings(
+    runs.flatMap((r) => r.suggestions.claude_md_additions.map((a) => a.addition)),
+  ).map((addition) => {
+    // Find the matching full object from any run
+    for (const run of [...runs].reverse()) {
+      const found = run.suggestions.claude_md_additions.find((a) => a.addition === addition);
+      if (found) return found;
+    }
+    return { addition, why: "" };
+  });
+
+  // Accumulate on_the_horizon opportunities (dedupe by title)
+  const seenOpps = new Set<string>();
+  const allOpps: typeof latest.on_the_horizon.opportunities = [];
+  for (const run of [...runs].reverse()) {
+    for (const o of run.on_the_horizon.opportunities) {
+      if (!seenOpps.has(o.title.toLowerCase())) {
+        seenOpps.add(o.title.toLowerCase());
+        allOpps.push(o);
+      }
+    }
+  }
+
+  // Pick the fun_ending with the most detail (longest)
+  const bestFunEnding = runs.reduce((best, run) =>
+    run.fun_ending.detail.length > best.fun_ending.detail.length
+      ? run
+      : best
+  ).fun_ending;
+
+  return {
+    // Latest wins for stats and narrative
+    project_areas: latest.project_areas,
+    interaction_style: latest.interaction_style,
+    at_a_glance: latest.at_a_glance,
+
+    // Accumulated content
+    what_works: {
+      intro: latest.what_works.intro,
+      impressive_workflows: allWorkflows,
+    },
+    friction_analysis: {
+      intro: latest.friction_analysis.intro,
+      categories: mergedFriction,
+    },
+    suggestions: {
+      claude_md_additions: allAdditions,
+      features_to_try: allFeatures,
+      usage_patterns: allPatterns,
+    },
+    on_the_horizon: {
+      intro: latest.on_the_horizon.intro,
+      opportunities: allOpps,
+    },
+    fun_ending: bestFunEnding,
+  };
+}
+
 // ── Main ─────────────────────────────────────────────────────────────
 
 function main() {
-  console.log("Generating blog posts from insights data...");
+  console.log("Generating blog posts from insights data...\n");
 
   if (!fs.existsSync(INSIGHTS_PATH)) {
     console.error(`No insights.json found at ${INSIGHTS_PATH}`);
     process.exit(1);
   }
 
-  const raw = fs.readFileSync(INSIGHTS_PATH, "utf-8");
-  const data: InsightsData = JSON.parse(raw);
+  // Archive current insights before processing
+  archiveInsights();
+
+  // Load all archived runs and merge
+  const allRuns = loadAllInsights();
+  console.log(`  Found ${allRuns.length} archived insights run(s)`);
+
+  const data = mergeInsights(allRuns);
+  console.log(
+    `  Merged: ${data.what_works.impressive_workflows.length} workflows, ` +
+      `${data.friction_analysis.categories.reduce((s, c) => s + c.examples.length, 0)} friction examples, ` +
+      `${data.suggestions.usage_patterns.length} usage patterns\n`
+  );
 
   const posts = generatePosts(data);
   const timeline = generateTimeline(data);
