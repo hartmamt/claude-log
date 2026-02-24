@@ -28,12 +28,6 @@ export function Header() {
           >
             about
           </Link>
-          <Link
-            href="/wrapped"
-            className="text-accent hover:text-emerald-300 transition-colors font-medium"
-          >
-            wrapped
-          </Link>
         </nav>
       </div>
     </header>
