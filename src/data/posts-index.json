@@ -1,0 +1,181 @@
+[
+  {
+    "slug": "how-i-use-claude-code",
+    "title": "What It's Actually Like to Use Claude Code for Everything",
+    "subtitle": "180 sessions, 256 commits, 974 hours — an honest account of treating AI as an engineering partner",
+    "date": "2026-02-24",
+    "category": "Workflow",
+    "categoryColor": "cyan",
+    "icon": "terminal",
+    "readingTime": "5 min read",
+    "highlights": [
+      "180 sessions",
+      "256 commits",
+      "4,169 file touches"
+    ],
+    "keyTakeaway": "The speed of the feedback loop is everything. Reduce the time between 'that's wrong' and 'now it's right.'",
+    "stats": [
+      {
+        "label": "Sessions",
+        "value": "180",
+        "color": "green"
+      },
+      {
+        "label": "Commits",
+        "value": "256",
+        "color": "amber"
+      },
+      {
+        "label": "Hours",
+        "value": "974",
+        "color": "cyan"
+      }
+    ]
+  },
+  {
+    "slug": "what-works",
+    "title": "The Workflows That Actually Work",
+    "subtitle": "Concrete patterns for shipping features, fixing bugs, and running code reviews with Claude Code",
+    "date": "2026-02-24",
+    "category": "Wins",
+    "categoryColor": "green",
+    "icon": "rocket",
+    "readingTime": "3 min read",
+    "highlights": [
+      "End-to-End Feature Lifecycle Mastery",
+      "Parallel Sub-Agent Architecture Audits",
+      "Rapid Bug-Fix-to-PR Pipeline"
+    ],
+    "keyTakeaway": "Describe outcomes, not implementations. Let Claude figure out the how, then verify the what.",
+    "stats": [
+      {
+        "label": "Commits",
+        "value": "256",
+        "color": "green"
+      },
+      {
+        "label": "Workflows",
+        "value": "3",
+        "color": "cyan"
+      }
+    ]
+  },
+  {
+    "slug": "where-things-go-wrong",
+    "title": "Where Things Go Wrong",
+    "subtitle": "An honest friction log from 180 sessions — buggy code, planning paralysis, and deployment gotchas",
+    "date": "2026-02-24",
+    "category": "Lessons",
+    "categoryColor": "red",
+    "icon": "alert",
+    "readingTime": "4 min read",
+    "highlights": [
+      "Buggy Code Shipped Without Adequate Verification",
+      "Excessive Planning and Exploration Without Producing Output",
+      "Git and Deployment Workflow Missteps"
+    ],
+    "keyTakeaway": "The solution to buggy AI code isn't more careful prompting — it's faster verification loops.",
+    "stats": [
+      {
+        "label": "Buggy Code",
+        "value": "53",
+        "color": "red"
+      },
+      {
+        "label": "Wrong Approach",
+        "value": "47",
+        "color": "amber"
+      },
+      {
+        "label": "Sessions",
+        "value": "180",
+        "color": "green"
+      }
+    ]
+  },
+  {
+    "slug": "power-user-tips",
+    "title": "Claude Code Power User Guide",
+    "subtitle": "Battle-tested prompts, CLAUDE.md rules, and workflow tricks from 180 sessions",
+    "date": "2026-02-24",
+    "category": "Tips",
+    "categoryColor": "green",
+    "icon": "zap",
+    "readingTime": "7 min read",
+    "highlights": [
+      "Custom Skills",
+      "Hooks",
+      "Task Agents",
+      "CLAUDE.md rules",
+      "Copyable prompts"
+    ],
+    "keyTakeaway": "Add a CLAUDE.md rule: 'start coding immediately, don't over-plan' and a pre-commit hook that runs tsc. These two changes prevent most friction."
+  },
+  {
+    "slug": "the-story",
+    "title": "The Best Story From 974+ Hours of AI Coding",
+    "subtitle": "Claude spent an entire session reading files and planning a Remotion animated video... then got interrupted before writing a single line of code",
+    "date": "2026-02-24",
+    "category": "Story",
+    "categoryColor": "cyan",
+    "icon": "moon",
+    "readingTime": "3 min read",
+    "highlights": [
+      "180 sessions analyzed",
+      "974+ hours",
+      "Real patterns"
+    ],
+    "keyTakeaway": "The interruption instinct is learned. Don't wait patiently — interrupt within 2 minutes if you don't see code being written."
+  },
+  {
+    "slug": "whats-next",
+    "title": "Where AI Coding Is Actually Heading",
+    "subtitle": "Parallel agents, self-healing deploys, and autonomous development pipelines — based on patterns already working",
+    "date": "2026-02-24",
+    "category": "Future",
+    "categoryColor": "cyan",
+    "icon": "telescope",
+    "readingTime": "6 min read",
+    "highlights": [
+      "Parallel Sub-Agent Architecture Audits and Fixes",
+      "Self-Healing Deploy Pipeline with Rollback",
+      "Full Feature Lifecycle in One Prompt"
+    ],
+    "keyTakeaway": "The constraint isn't model capability — it's context management. Solving that turns AI assistants into AI development teams."
+  },
+  {
+    "slug": "the-projects",
+    "title": "5 Projects, 180 Sessions: What I Built",
+    "subtitle": "From SaaS platforms to infrastructure to marketing sites — what Claude handles well and where it struggles",
+    "date": "2026-02-24",
+    "category": "Projects",
+    "categoryColor": "amber",
+    "icon": "folder",
+    "readingTime": "4 min read",
+    "highlights": [
+      "the (85)",
+      "MCP (35)",
+      "Stripe (15)",
+      "Marketing (25)",
+      "DevOps, (20)"
+    ],
+    "keyTakeaway": "TypeScript is Claude's sweet spot. The type system acts as a guardrail that catches mistakes early. Infrastructure work needs more hand-holding.",
+    "stats": [
+      {
+        "label": "Projects",
+        "value": "5",
+        "color": "amber"
+      },
+      {
+        "label": "Sessions",
+        "value": "180",
+        "color": "green"
+      },
+      {
+        "label": "File Touches",
+        "value": "4,169",
+        "color": "cyan"
+      }
+    ]
+  }
+]

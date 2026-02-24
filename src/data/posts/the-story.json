@@ -1,0 +1,17 @@
+{
+  "slug": "the-story",
+  "title": "The Best Story From 974+ Hours of AI Coding",
+  "subtitle": "Claude spent an entire session reading files and planning a Remotion animated video... then got interrupted before writing a single line of code",
+  "date": "2026-02-24",
+  "category": "Story",
+  "categoryColor": "cyan",
+  "icon": "moon",
+  "readingTime": "3 min read",
+  "content": ":::callout{type=\"story\"}\nClaude spent an entire session reading files and planning a Remotion animated video... then got interrupted before writing a single line of code\n:::\n\nThe user wanted an animated explainer video for the platform built with Remotion. Claude burned through 8 full minutes deep in exploration mode — reading files, writing elaborate plans — without producing any actual output. The user finally interrupted, presumably exasperated. This happened not once but twice across separate sessions, with Claude falling into the same 'planning paralysis' trap both times.\n\n## Why This Is Actually Revealing\n\nThis isn't just a funny anecdote. It captures the central tension of working with AI coding tools at scale: **the same capability that makes them incredibly productive also makes them incredibly frustrating.**\n\nClaude can implement a complete payment integration across server and client code in a single session. It can also burn 8 minutes reading files it's already read, writing a plan nobody asked for, without producing a single line of code. Same model, same session, sometimes minutes apart.\n\n## The Patterns That Emerge After 180 Sessions\n\nWhen you use Claude Code intensely across 5 projects for 974+ hours, the patterns — both productive and frustrating — become impossible to ignore:\n\n- **Productivity follows a power law.** About 20% of my sessions produce 80% of the shipped code. The best sessions are 10x more productive than average. The worst sessions produce negative value (bugs I have to fix later).\n\n- **Context is everything.** Claude performs dramatically better when it has: a clear goal, specific file paths, known constraints, and a \"just do it\" instruction. It performs worst with vague requests, open-ended exploration tasks, and multi-objective sessions.\n\n- **The interruption instinct is learned.** I used to wait patiently while Claude explored. Now I interrupt within 2 minutes if I don't see code being written. This single behavioral change improved my success rate more than any prompting technique.\n\n## Lessons From 974+ Hours\n\n- **Trust but verify** — Let Claude run freely, but always validate against your build pipeline\n- **Interrupt early** — When Claude starts over-planning, cut it off and redirect\n- **Stack tasks intentionally** — Chaining implement → review → fix → deploy works great; stacking 5 unrelated tasks doesn't\n- **Front-load constraints** — Tell Claude what NOT to do upfront\n\n:::callout{type=\"insight\"}\n**The meta-insight:** The best way to get better at using Claude Code is to use it more, document what happens, and share what you learn. Which is exactly what this site does.\n:::",
+  "highlights": [
+    "180 sessions analyzed",
+    "974+ hours",
+    "Real patterns"
+  ],
+  "keyTakeaway": "The interruption instinct is learned. Don't wait patiently — interrupt within 2 minutes if you don't see code being written."
+}

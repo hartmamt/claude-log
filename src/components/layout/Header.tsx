@@ -1,0 +1,35 @@
+import Link from "next/link";
+
+export function Header() {
+  return (
+    <header className="border-b border-border bg-surface sticky top-0 z-50 backdrop-blur-sm bg-opacity-80">
+      <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80">
+          <span className="font-mono text-accent font-bold text-base tracking-tight">
+            claude_log
+          </span>
+        </Link>
+        <nav className="flex items-center gap-6 text-sm">
+          <Link
+            href="/"
+            className="text-text-muted hover:text-foreground transition-colors"
+          >
+            posts
+          </Link>
+          <Link
+            href="/journey"
+            className="text-text-muted hover:text-foreground transition-colors"
+          >
+            journey
+          </Link>
+          <Link
+            href="/setup"
+            className="text-text-muted hover:text-foreground transition-colors"
+          >
+            fork it
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+}

@@ -1,0 +1,29 @@
+{
+  "slug": "what-works",
+  "title": "The Workflows That Actually Work",
+  "subtitle": "Concrete patterns for shipping features, fixing bugs, and running code reviews with Claude Code",
+  "date": "2026-02-24",
+  "category": "Wins",
+  "categoryColor": "green",
+  "icon": "rocket",
+  "readingTime": "3 min read",
+  "content": "Across nearly 400 sessions and 256 commits over two months, I've built an impressive full-stack development workflow with Claude Code as a deeply integrated engineering partner.\n\nBut \"it works well\" isn't very useful advice. What specifically works? What patterns can you steal?\n\n## End-to-End Feature Lifecycle Mastery\n\nI consistently drive features from planning through implementation, code review, PR creation, and deployment all within single sessions. Whether it's a Calendly connector (1,352 lines across 12 files), a full Stripe Connect integration, or mobile responsive overhauls spanning 18 files, I treat Claude as a full-cycle engineering partner rather than just a code generator. My ability to chain tasks — implement, review, fix, merge, deploy — keeps momentum high and ships features fast.\n\n## Parallel Sub-Agent Architecture Audits\n\nI've leveraged advanced agentic patterns like spawning 8 parallel sub-agents for a codebase architecture audit, producing a scored assessment that feeds directly into actionable fix plans. This shows a sophisticated understanding of how to use Claude not just for individual tasks but as an orchestration layer for complex, multi-dimensional analysis across my entire codebase.\n\n## Rapid Bug-Fix-to-PR Pipeline\n\nI've developed an incredibly efficient bug fix workflow where I feed Claude a plan or QA report, have it implement fixes across multiple files, run code review, address findings, and push a PR — sometimes completing the entire cycle in under 10 minutes. My pattern of combining bug fix implementation with inline code review before shipping means I catch issues early while maintaining a high velocity of 256 commits across the period.\n\n## The Pattern Behind the Patterns\n\nEvery workflow above shares a common structure: **clear scope, autonomous execution, verification gate, ship.**\n\nThe temptation with AI coding tools is to micromanage — describe each function, review each file, approve each change. That's the slow way. The fast way is to describe the *outcome* you want, let Claude figure out the implementation, then verify the result against your actual quality bar (type checks, builds, tests, visual inspection).\n\n:::callout{type=\"insight\"}\n**The mental model that works:** Think of Claude as a contractor, not an employee. You don't tell a contractor which nails to use — you describe the finished product and inspect the work.\n:::\n\n## What Doesn't Get Talked About Enough\n\nThe biggest unlock wasn't any single technique. It was building *trust* over time. After watching Claude successfully implement a complex connector across 12 files and 1,352 lines in a single session, I started scoping much more ambitiously. That compounding trust is the real force multiplier.\n\nThe flip side: trust needs to be *calibrated*. Claude will confidently ship code with subtle bugs (more on that in [Where Things Go Wrong](/posts/where-things-go-wrong)). The right balance is high trust on implementation, zero trust on correctness until verified.",
+  "highlights": [
+    "End-to-End Feature Lifecycle Mastery",
+    "Parallel Sub-Agent Architecture Audits",
+    "Rapid Bug-Fix-to-PR Pipeline"
+  ],
+  "keyTakeaway": "Describe outcomes, not implementations. Let Claude figure out the how, then verify the what.",
+  "stats": [
+    {
+      "label": "Commits",
+      "value": "256",
+      "color": "green"
+    },
+    {
+      "label": "Workflows",
+      "value": "3",
+      "color": "cyan"
+    }
+  ]
+}

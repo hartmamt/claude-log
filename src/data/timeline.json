@@ -1,0 +1,116 @@
+[
+  {
+    "day": "Week 1-2",
+    "label": "Foundation & Core Product",
+    "events": [
+      {
+        "title": "Platform kickoff",
+        "description": "Started building core SaaS platform — dashboard, onboarding, page editor, pipeline board across 85 sessions",
+        "type": "milestone"
+      },
+      {
+        "title": "MCP tools & agent infrastructure",
+        "description": "Built and debugged MCP tools, agent engine, streaming endpoints, and agent architecture",
+        "type": "milestone"
+      },
+      {
+        "title": "First major integrations",
+        "description": "Calendar connector (1,352 lines, 12 files), OAuth setup, database migrations",
+        "type": "win"
+      },
+      {
+        "title": "Planning paralysis discovered",
+        "description": "Claude spent entire sessions exploring code without producing any changes — a pattern that would recur",
+        "type": "friction"
+      }
+    ]
+  },
+  {
+    "day": "Week 3-4",
+    "label": "Shipping & Scaling",
+    "events": [
+      {
+        "title": "Payment integration",
+        "description": "Full payment infrastructure — production config, deploy bug fixes, cost optimization",
+        "type": "win"
+      },
+      {
+        "title": "Overnight autonomous builds",
+        "description": "'Build a surprising SaaS feature overnight' — woke up to 2,123 lines of working code",
+        "type": "win"
+      },
+      {
+        "title": "Client demos shipped",
+        "description": "Demo with chat handoffs, transfer analytics, custom theming",
+        "type": "win"
+      },
+      {
+        "title": "Ghost migration incident",
+        "description": "Critical bug fix appeared complete but migration was ghost-applied — never actually executed",
+        "type": "friction"
+      },
+      {
+        "title": "Parallel sub-agent architecture audit",
+        "description": "Dispatched 8 sub-agents for security, performance, TypeScript, and architecture reviews simultaneously",
+        "type": "milestone"
+      }
+    ]
+  },
+  {
+    "day": "Week 5-6",
+    "label": "Polish & Patterns",
+    "events": [
+      {
+        "title": "Dark editorial theming",
+        "description": "13+ file theme migration to match modern dark aesthetic site-wide",
+        "type": "win"
+      },
+      {
+        "title": "Marketing site & video production",
+        "description": "Features pages, OG images, animated explainers, dev blog",
+        "type": "milestone"
+      },
+      {
+        "title": "Deployment pipeline refined",
+        "description": "Resolved recurring CLI issues, env var trailing newlines, branch management",
+        "type": "win"
+      },
+      {
+        "title": "Context window overflow",
+        "description": "11+ parallel sub-agents overwhelmed context — every response truncated",
+        "type": "friction"
+      },
+      {
+        "title": "Bug-fix-to-PR pipeline mastered",
+        "description": "QA report → implement → review → fix findings → push PR, sometimes in under 10 minutes",
+        "type": "insight"
+      }
+    ]
+  },
+  {
+    "day": "Week 7-8",
+    "label": "Reflection & This Site",
+    "events": [
+      {
+        "title": "This dev log built",
+        "description": "Static blog generated from Claude Code /insights data — what you're reading now",
+        "type": "milestone"
+      },
+      {
+        "title": "256 commits shipped",
+        "description": "180 sessions, 5 project areas, ~2 months of building with Claude Code",
+        "type": "win"
+      },
+      {
+        "title": "Key insight crystallized",
+        "description": "High-trust delegation with decisive course-correction beats careful upfront specification",
+        "type": "insight"
+      },
+      {
+        "title": "Patterns documented",
+        "description": "Friction points, power user tips, and future workflows captured for others to learn from",
+        "type": "insight"
+      }
+    ]
+  }
+]

@@ -1,0 +1,852 @@
+import * as fs from "fs";
+import * as path from "path";
+import type { BlogPost, SiteStats, TimelineEvent } from "../src/types";
+
+interface InsightsData {
+  project_areas: {
+    areas: { name: string; session_count: number; description: string }[];
+  };
+  interaction_style: { narrative: string; key_pattern: string };
+  what_works: {
+    intro: string;
+    impressive_workflows: { title: string; description: string }[];
+  };
+  friction_analysis: {
+    intro: string;
+    categories: {
+      category: string;
+      description: string;
+      examples: string[];
+    }[];
+  };
+  suggestions: {
+    claude_md_additions: { addition: string; why: string }[];
+    features_to_try: {
+      feature: string;
+      one_liner: string;
+      why_for_you: string;
+      example_code: string;
+    }[];
+    usage_patterns: {
+      title: string;
+      suggestion: string;
+      detail: string;
+      copyable_prompt: string;
+    }[];
+  };
+  on_the_horizon: {
+    intro: string;
+    opportunities: {
+      title: string;
+      whats_possible: string;
+      how_to_try: string;
+      copyable_prompt: string;
+    }[];
+  };
+  fun_ending: { headline: string; detail: string };
+  at_a_glance: {
+    whats_working: string;
+    whats_hindering: string;
+    quick_wins: string;
+    ambitious_workflows: string;
+  };
+}
+
+const OUTPUT_DIR = path.join(process.cwd(), "src", "data");
+const POSTS_DIR = path.join(OUTPUT_DIR, "posts");
+const INSIGHTS_PATH = path.join(OUTPUT_DIR, "insights.json");
+
+// ── Anonymization ────────────────────────────────────────────────────
+// Strips product names, client names, and other identifying details.
+// Add entries here when /insights surfaces new names you don't want public.
+
+const ANONYMIZE_RULES: [RegExp, string][] = [
+  // Product names → generic descriptions
+  [/ActionTree/gi, "the platform"],
+  [/Anchor Fitness/gi, "a client"],
+  [/StreamFit/gi, "a third-party service"],
+  // Keep these generic so they read naturally in prose
+  [/for ActionTree's/gi, "for the platform's"],
+  [/for the platform's agent system/gi, "for the agent system"],
+  [/demo scripts for the platform/gi, "demo scripts for the product"],
+];
+
+function anonymize(text: string): string {
+  let result = text;
+  for (const [pattern, replacement] of ANONYMIZE_RULES) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
+// ── Voice conversion ─────────────────────────────────────────────────
+// /insights writes in second person ("You are…", "Your workflow…").
+// Blog posts should read in first person ("I am…", "My workflow…").
+
+function secondToFirstPerson(text: string): string {
+  let result = text;
+
+  // Whole-word replacements (case-sensitive for common patterns)
+  const replacements: [RegExp, string][] = [
+    // "You are" → "I'm" / "I am"
+    [/\bYou are\b/g, "I'm"],
+    [/\byou are\b/g, "I'm"],
+    // "Your" → "My"
+    [/\bYour\b/g, "My"],
+    [/\byour\b/g, "my"],
+    // "You" (subject) → "I"
+    [/\bYou\b/g, "I"],
+    [/\byou\b/g, "I"],
+    // "yourself" → "myself"
+    [/\byourself\b/g, "myself"],
+    [/\bYourself\b/g, "Myself"],
+  ];
+
+  for (const [pattern, replacement] of replacements) {
+    result = result.replace(pattern, replacement);
+  }
+
+  return result;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────
+
+function estimateReadingTime(content: string): string {
+  const words = content.split(/\s+/).length;
+  const minutes = Math.ceil(words / 200);
+  return `${minutes} min read`;
+}
+
+function extractNumber(text: string, pattern: RegExp): string | null {
+  const match = text.match(pattern);
+  return match ? match[1] : null;
+}
+
+/** Run anonymize + voice conversion on a block of text */
+function clean(text: string): string {
+  return secondToFirstPerson(anonymize(text));
+}
+
+// ── Post generation ──────────────────────────────────────────────────
+
+function generatePosts(data: InsightsData): BlogPost[] {
+  const today = new Date().toISOString().split("T")[0];
+  const posts: BlogPost[] = [];
+
+  const totalSessions = data.project_areas.areas.reduce(
+    (s, a) => s + a.session_count,
+    0
+  );
+  const projectCount = data.project_areas.areas.length;
+
+  const commits =
+    extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
+    "256";
+  const hours =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d[\d,]+)\s+hours?\s+of\s+usage/
+    ) || "974";
+  const buggyCode =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d+)\s+buggy\s*code/i
+    ) || "53";
+  const wrongApproach =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d+)\s+wrong\s*approach/i
+    ) || "47";
+  const fileTouches =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d[\d,]+)\s+file\s+touches/i
+    ) || "4,169";
+
+  // -------------------------------------------------------------------
+  // Post 1: The definitive "what is it actually like" post
+  // Slug: how-i-use-claude-code (STABLE — do not change)
+  // -------------------------------------------------------------------
+  const narrative = clean(data.interaction_style.narrative);
+  const keyPattern = clean(data.interaction_style.key_pattern);
+
+  const post1Content = `
+There's a version of this post that just shows you the numbers: ${totalSessions} sessions, ${commits} commits, ${hours} hours, ${projectCount} projects. But numbers don't capture what it actually *feels* like to treat an AI as your primary engineering partner for two months straight.
+
+So here's the honest version.
+
+## The Working Dynamic
+
+${narrative}
+
+:::callout{type="insight"}
+**The one-line summary:** ${keyPattern}
+:::
+
+## What This Looks Like Day to Day
+
+Most sessions follow the same arc: I describe what I want at a high level, Claude decomposes it into steps, and then we iterate. The good sessions feel like pair programming with someone who types infinitely fast. The bad sessions feel like managing a junior developer who keeps misunderstanding the architecture.
+
+The difference between the two? Specificity. When I say "add a delete button to the user profile with a confirmation modal that calls the existing deleteUser API endpoint," Claude nails it. When I say "improve the settings page," Claude spends 8 minutes reading files and writing plans without producing code.
+
+## The Projects
+
+${data.project_areas.areas
+  .map(
+    (a) => `### ${anonymize(a.name)}
+:::stat{value="${a.session_count}" label="sessions"}:::
+
+${clean(a.description)}`
+  )
+  .join("\n\n")}
+
+## The Meta-Pattern
+
+After ${totalSessions} sessions, the pattern that matters most isn't any specific technique — it's the *speed of the feedback loop*. The faster you can tell Claude what's wrong and get a correction, the more productive you are. Every workflow optimization I've found boils down to: reduce the time between "that's wrong" and "now it's right."
+`.trim();
+
+  posts.push({
+    slug: "how-i-use-claude-code",
+    title: "What It's Actually Like to Use Claude Code for Everything",
+    subtitle: `${totalSessions} sessions, ${commits} commits, ${hours} hours — an honest account of treating AI as an engineering partner`,
+    date: today,
+    category: "Workflow",
+    categoryColor: "cyan",
+    icon: "terminal",
+    readingTime: estimateReadingTime(post1Content),
+    content: post1Content,
+    highlights: [
+      `${totalSessions} sessions`,
+      `${commits} commits`,
+      `${fileTouches} file touches`,
+    ],
+    keyTakeaway:
+      "The speed of the feedback loop is everything. Reduce the time between 'that's wrong' and 'now it's right.'",
+    stats: [
+      { label: "Sessions", value: totalSessions.toString(), color: "green" },
+      { label: "Commits", value: commits, color: "amber" },
+      { label: "Hours", value: hours, color: "cyan" },
+    ],
+  });
+
+  // -------------------------------------------------------------------
+  // Post 2: The things that actually work well
+  // Slug: what-works (STABLE)
+  // -------------------------------------------------------------------
+  const post2Content = `
+${clean(data.what_works.intro)}
+
+But "it works well" isn't very useful advice. What specifically works? What patterns can you steal?
+
+${data.what_works.impressive_workflows
+  .map(
+    (w) => `## ${w.title}
+
+${clean(w.description)}`
+  )
+  .join("\n\n")}
+
+## The Pattern Behind the Patterns
+
+Every workflow above shares a common structure: **clear scope, autonomous execution, verification gate, ship.**
+
+The temptation with AI coding tools is to micromanage — describe each function, review each file, approve each change. That's the slow way. The fast way is to describe the *outcome* you want, let Claude figure out the implementation, then verify the result against your actual quality bar (type checks, builds, tests, visual inspection).
+
+:::callout{type="insight"}
+**The mental model that works:** Think of Claude as a contractor, not an employee. You don't tell a contractor which nails to use — you describe the finished product and inspect the work.
+:::
+
+## What Doesn't Get Talked About Enough
+
+The biggest unlock wasn't any single technique. It was building *trust* over time. After watching Claude successfully implement a complex connector across 12 files and 1,352 lines in a single session, I started scoping much more ambitiously. That compounding trust is the real force multiplier.
+
+The flip side: trust needs to be *calibrated*. Claude will confidently ship code with subtle bugs (more on that in [Where Things Go Wrong](/posts/where-things-go-wrong)). The right balance is high trust on implementation, zero trust on correctness until verified.
+`.trim();
+
+  posts.push({
+    slug: "what-works",
+    title: "The Workflows That Actually Work",
+    subtitle:
+      "Concrete patterns for shipping features, fixing bugs, and running code reviews with Claude Code",
+    date: today,
+    category: "Wins",
+    categoryColor: "green",
+    icon: "rocket",
+    readingTime: estimateReadingTime(post2Content),
+    content: post2Content,
+    highlights: data.what_works.impressive_workflows.map((w) => w.title),
+    keyTakeaway:
+      "Describe outcomes, not implementations. Let Claude figure out the how, then verify the what.",
+    stats: [
+      { label: "Commits", value: commits, color: "green" },
+      {
+        label: "Workflows",
+        value: data.what_works.impressive_workflows.length.toString(),
+        color: "cyan",
+      },
+    ],
+  });
+
+  // -------------------------------------------------------------------
+  // Post 3: Where things go wrong — the honest post
+  // Slug: where-things-go-wrong (STABLE)
+  // -------------------------------------------------------------------
+  const post3Content = `
+Every post about AI coding tools tells you how great they are. This one tells you where they break.
+
+After ${totalSessions} sessions, I've accumulated a detailed friction log. Not theoretical concerns — actual things that went wrong, cost time, and sometimes killed entire sessions. Here's the unfiltered version.
+
+${data.friction_analysis.categories
+  .map(
+    (cat) => `## ${cat.category}
+
+${clean(cat.description)}
+
+:::callout{type="warning"}
+**Real examples from my sessions:**
+${cat.examples.map((e) => `- ${clean(e)}`).join("\n")}
+:::
+`
+  )
+  .join("\n")}
+
+## The Honest Numbers
+
+:::stat{value="${buggyCode}" label="buggy code incidents"}::: :::stat{value="${wrongApproach}" label="wrong approaches"}:::
+
+These aren't edge cases. Across ${totalSessions} sessions and ${commits} commits, roughly 1 in 4 sessions hit meaningful friction. The productive output still far outweighs the cost — but pretending friction doesn't exist makes you worse at managing it.
+
+## What I've Learned About Managing Friction
+
+The single biggest improvement: **make Claude verify its own work before declaring done.** Adding \`npx tsc --noEmit\` after every implementation pass catches the majority of shipped bugs. It's a 5-second check that saves 15-minute debugging cycles.
+
+:::callout{type="insight"}
+**The counterintuitive lesson:** The solution to buggy AI code isn't more careful prompting — it's faster verification loops. Don't try to prevent bugs; catch them immediately.
+:::
+
+The second biggest improvement: **interrupt early when Claude starts over-planning.** If Claude is reading files and writing plans after 2 minutes without producing code, it's stuck. Kill it, restate the goal more concretely, and tell it to start implementing immediately.
+`.trim();
+
+  posts.push({
+    slug: "where-things-go-wrong",
+    title: "Where Things Go Wrong",
+    subtitle: `An honest friction log from ${totalSessions} sessions — buggy code, planning paralysis, and deployment gotchas`,
+    date: today,
+    category: "Lessons",
+    categoryColor: "red",
+    icon: "alert",
+    readingTime: estimateReadingTime(post3Content),
+    content: post3Content,
+    highlights: data.friction_analysis.categories.map((c) => c.category),
+    keyTakeaway:
+      "The solution to buggy AI code isn't more careful prompting — it's faster verification loops.",
+    stats: [
+      { label: "Buggy Code", value: buggyCode, color: "red" },
+      { label: "Wrong Approach", value: wrongApproach, color: "amber" },
+      { label: "Sessions", value: totalSessions.toString(), color: "green" },
+    ],
+  });
+
+  // -------------------------------------------------------------------
+  // Post 4: Practical tips — the actionable post
+  // Slug: power-user-tips (STABLE)
+  // -------------------------------------------------------------------
+  const post4Content = `
+This is the post I wish I'd read before my first session. No theory, no hype — just the specific things that make Claude Code dramatically more effective.
+
+## The Prompts That Work
+
+${data.suggestions.usage_patterns
+  .map(
+    (p) => `### ${p.title}
+
+${clean(p.detail)}
+
+:::prompt
+${p.copyable_prompt}
+:::
+`
+  )
+  .join("\n")}
+
+## Features You're Probably Not Using
+
+${data.suggestions.features_to_try
+  .map(
+    (f) => `### ${f.feature}
+
+*${f.one_liner}*
+
+${clean(f.why_for_you)}
+
+\`\`\`
+${f.example_code}
+\`\`\`
+`
+  )
+  .join("\n")}
+
+## CLAUDE.md: The Most Underrated Feature
+
+Your \`CLAUDE.md\` file is loaded at the start of every session. It's the single highest-leverage thing you can configure. Here are the rules I'd add based on ${totalSessions} sessions of friction data:
+
+${data.suggestions.claude_md_additions
+  .map(
+    (a) => `:::callout{type="tip"}
+**Add this rule:** ${a.addition}
+
+**Why it matters:** ${clean(a.why)}
+:::`
+  )
+  .join("\n\n")}
+
+## The One-Minute Setup That Prevents Most Problems
+
+If you only do one thing from this post, do this: add a pre-commit hook that runs your type checker. Most of the bugs Claude ships are type errors that would be caught instantly.
+
+\`\`\`json
+// .claude/settings.json
+{
+  "hooks": {
+    "preCommit": {
+      "command": "npx tsc --noEmit && npm run build"
+    }
+  }
+}
+\`\`\`
+
+This single change would have prevented the majority of my ${buggyCode} buggy code incidents.
+`.trim();
+
+  posts.push({
+    slug: "power-user-tips",
+    title: "Claude Code Power User Guide",
+    subtitle: `Battle-tested prompts, CLAUDE.md rules, and workflow tricks from ${totalSessions} sessions`,
+    date: today,
+    category: "Tips",
+    categoryColor: "green",
+    icon: "zap",
+    readingTime: estimateReadingTime(post4Content),
+    content: post4Content,
+    highlights: [
+      ...data.suggestions.features_to_try.map((f) => f.feature),
+      "CLAUDE.md rules",
+      "Copyable prompts",
+    ],
+    keyTakeaway:
+      "Add a CLAUDE.md rule: 'start coding immediately, don't over-plan' and a pre-commit hook that runs tsc. These two changes prevent most friction.",
+  });
+
+  // -------------------------------------------------------------------
+  // Post 5: The fun story — the shareable post
+  // Slug: the-story (STABLE)
+  // -------------------------------------------------------------------
+  const post5Content = `
+:::callout{type="story"}
+${clean(data.fun_ending.headline)}
+:::
+
+${clean(data.fun_ending.detail)}
+
+## Why This Is Actually Revealing
+
+This isn't just a funny anecdote. It captures the central tension of working with AI coding tools at scale: **the same capability that makes them incredibly productive also makes them incredibly frustrating.**
+
+Claude can implement a complete payment integration across server and client code in a single session. It can also burn 8 minutes reading files it's already read, writing a plan nobody asked for, without producing a single line of code. Same model, same session, sometimes minutes apart.
+
+## The Patterns That Emerge After ${totalSessions} Sessions
+
+When you use Claude Code intensely across ${projectCount} projects for ${hours}+ hours, the patterns — both productive and frustrating — become impossible to ignore:
+
+- **Productivity follows a power law.** About 20% of my sessions produce 80% of the shipped code. The best sessions are 10x more productive than average. The worst sessions produce negative value (bugs I have to fix later).
+
+- **Context is everything.** Claude performs dramatically better when it has: a clear goal, specific file paths, known constraints, and a "just do it" instruction. It performs worst with vague requests, open-ended exploration tasks, and multi-objective sessions.
+
+- **The interruption instinct is learned.** I used to wait patiently while Claude explored. Now I interrupt within 2 minutes if I don't see code being written. This single behavioral change improved my success rate more than any prompting technique.
+
+## Lessons From ${hours}+ Hours
+
+- **Trust but verify** — Let Claude run freely, but always validate against your build pipeline
+- **Interrupt early** — When Claude starts over-planning, cut it off and redirect
+- **Stack tasks intentionally** — Chaining implement → review → fix → deploy works great; stacking 5 unrelated tasks doesn't
+- **Front-load constraints** — Tell Claude what NOT to do upfront
+
+:::callout{type="insight"}
+**The meta-insight:** The best way to get better at using Claude Code is to use it more, document what happens, and share what you learn. Which is exactly what this site does.
+:::
+`.trim();
+
+  posts.push({
+    slug: "the-story",
+    title: `The Best Story From ${hours}+ Hours of AI Coding`,
+    subtitle: clean(data.fun_ending.headline),
+    date: today,
+    category: "Story",
+    categoryColor: "cyan",
+    icon: "moon",
+    readingTime: estimateReadingTime(post5Content),
+    content: post5Content,
+    highlights: [
+      `${totalSessions} sessions analyzed`,
+      `${hours}+ hours`,
+      "Real patterns",
+    ],
+    keyTakeaway:
+      "The interruption instinct is learned. Don't wait patiently — interrupt within 2 minutes if you don't see code being written.",
+  });
+
+  // -------------------------------------------------------------------
+  // Post 6: What's coming — the forward-looking post
+  // Slug: whats-next (STABLE)
+  // -------------------------------------------------------------------
+  const post6Content = `
+${clean(data.on_the_horizon.intro)}
+
+The workflows I use today would have seemed impossible a year ago. Here's what I think becomes possible in the next year — based not on speculation, but on patterns I'm already seeing work at small scale.
+
+${data.on_the_horizon.opportunities
+  .map(
+    (o) => `## ${o.title}
+
+${clean(o.whats_possible)}
+
+### How to Start Experimenting
+
+${clean(o.how_to_try)}
+
+:::prompt
+${o.copyable_prompt}
+:::
+`
+  )
+  .join("\n")}
+
+## The Bigger Picture
+
+Right now, most people use Claude Code for single-task, single-session work: "fix this bug," "add this feature," "write this test." That's like using a spreadsheet as a calculator — technically correct but dramatically underutilizing the tool.
+
+The future is **compound workflows**: chains of autonomous agents that handle entire development lifecycles — from planning through implementation through testing through deployment through monitoring. Not in theory. I've already seen pieces of this work.
+
+:::callout{type="insight"}
+**The trajectory:** We're moving from "AI writes code I review" to "AI runs a development pipeline I occasionally steer." The timeline for this transition is shorter than most people think.
+:::
+
+The constraint isn't model capability — it's context management. The models can already do the work. The challenge is giving them enough context to do it reliably without human intervention at every step. Solving that is what turns AI coding assistants into AI development teams.
+`.trim();
+
+  posts.push({
+    slug: "whats-next",
+    title: "Where AI Coding Is Actually Heading",
+    subtitle:
+      "Parallel agents, self-healing deploys, and autonomous development pipelines — based on patterns already working",
+    date: today,
+    category: "Future",
+    categoryColor: "cyan",
+    icon: "telescope",
+    readingTime: estimateReadingTime(post6Content),
+    content: post6Content,
+    highlights: data.on_the_horizon.opportunities.map((o) => o.title),
+    keyTakeaway:
+      "The constraint isn't model capability — it's context management. Solving that turns AI assistants into AI development teams.",
+  });
+
+  // -------------------------------------------------------------------
+  // Post 7: The projects deep dive
+  // Slug: the-projects (STABLE)
+  // -------------------------------------------------------------------
+  const post7Content = `
+Over ${hours}+ hours, I used Claude Code across ${projectCount} distinct project areas. Not toy projects or tutorials — production systems with real users, real integrations, and real deployment pipelines.
+
+Here's what Claude Code handles well, what it struggles with, and what surprised me about each.
+
+${data.project_areas.areas
+  .map(
+    (area) => `## ${anonymize(area.name)}
+
+:::stat{value="${area.session_count}" label="sessions"}:::
+
+${clean(area.description)}
+
+${
+  area.session_count > 30
+    ? `:::callout{type="insight"}\nWith ${area.session_count} sessions, this was heavy enough to reveal Claude's real strengths and weaknesses in this domain. The patterns that emerged here informed many of the tips in the [Power User Guide](/posts/power-user-tips).\n:::`
+    : area.session_count > 15
+      ? `:::callout{type="tip"}\nAt ${area.session_count} sessions, the dominant pattern was rapid iteration — fixing issues as they surfaced rather than trying to prevent them upfront.\n:::`
+      : `:::callout{type="tip"}\nEven with only ${area.session_count} sessions, Claude handled the full scope — from initial setup through production deployment.\n:::`
+}`
+  )
+  .join("\n\n---\n\n")}
+
+## Cross-Project Patterns
+
+After working with Claude across all ${projectCount} areas, a few things became clear:
+
+- **TypeScript is Claude's sweet spot.** With ${fileTouches} file touches across the period, TypeScript/React projects had the highest success rate by far. The type system acts as a guardrail that catches Claude's mistakes early.
+
+- **Infrastructure work needs more hand-holding.** Terraform, database migrations, and deployment configs require more explicit instructions. Claude tends to make assumptions about infrastructure that are wrong.
+
+- **Integrations are surprisingly strong.** Payment systems, calendar APIs, OAuth flows, MCP servers — Claude handled these well because the APIs are well-documented and the patterns are clear.
+`.trim();
+
+  posts.push({
+    slug: "the-projects",
+    title: `${projectCount} Projects, ${totalSessions} Sessions: What I Built`,
+    subtitle:
+      "From SaaS platforms to infrastructure to marketing sites — what Claude handles well and where it struggles",
+    date: today,
+    category: "Projects",
+    categoryColor: "amber",
+    icon: "folder",
+    readingTime: estimateReadingTime(post7Content),
+    content: post7Content,
+    highlights: data.project_areas.areas.map(
+      (a) =>
+        `${anonymize(a.name).split(" ")[0]} (${a.session_count})`
+    ),
+    keyTakeaway:
+      "TypeScript is Claude's sweet spot. The type system acts as a guardrail that catches mistakes early. Infrastructure work needs more hand-holding.",
+    stats: [
+      { label: "Projects", value: projectCount.toString(), color: "amber" },
+      {
+        label: "Sessions",
+        value: totalSessions.toString(),
+        color: "green",
+      },
+      { label: "File Touches", value: fileTouches, color: "cyan" },
+    ],
+  });
+
+  return posts;
+}
+
+// ── Timeline generation ──────────────────────────────────────────────
+
+function generateTimeline(data: InsightsData): TimelineEvent[] {
+  const totalSessions = data.project_areas.areas.reduce(
+    (s, a) => s + a.session_count,
+    0
+  );
+  const commits =
+    extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
+    "256";
+
+  return [
+    {
+      day: "Week 1-2",
+      label: "Foundation & Core Product",
+      events: [
+        {
+          title: "Platform kickoff",
+          description: `Started building core SaaS platform — dashboard, onboarding, page editor, pipeline board across ${data.project_areas.areas[0].session_count} sessions`,
+          type: "milestone",
+        },
+        {
+          title: "MCP tools & agent infrastructure",
+          description:
+            "Built and debugged MCP tools, agent engine, streaming endpoints, and agent architecture",
+          type: "milestone",
+        },
+        {
+          title: "First major integrations",
+          description:
+            "Calendar connector (1,352 lines, 12 files), OAuth setup, database migrations",
+          type: "win",
+        },
+        {
+          title: "Planning paralysis discovered",
+          description:
+            "Claude spent entire sessions exploring code without producing any changes — a pattern that would recur",
+          type: "friction",
+        },
+      ],
+    },
+    {
+      day: "Week 3-4",
+      label: "Shipping & Scaling",
+      events: [
+        {
+          title: "Payment integration",
+          description:
+            "Full payment infrastructure — production config, deploy bug fixes, cost optimization",
+          type: "win",
+        },
+        {
+          title: "Overnight autonomous builds",
+          description:
+            "'Build a surprising SaaS feature overnight' — woke up to 2,123 lines of working code",
+          type: "win",
+        },
+        {
+          title: "Client demos shipped",
+          description:
+            "Demo with chat handoffs, transfer analytics, custom theming",
+          type: "win",
+        },
+        {
+          title: "Ghost migration incident",
+          description:
+            "Critical bug fix appeared complete but migration was ghost-applied — never actually executed",
+          type: "friction",
+        },
+        {
+          title: "Parallel sub-agent architecture audit",
+          description:
+            "Dispatched 8 sub-agents for security, performance, TypeScript, and architecture reviews simultaneously",
+          type: "milestone",
+        },
+      ],
+    },
+    {
+      day: "Week 5-6",
+      label: "Polish & Patterns",
+      events: [
+        {
+          title: "Dark editorial theming",
+          description:
+            "13+ file theme migration to match modern dark aesthetic site-wide",
+          type: "win",
+        },
+        {
+          title: "Marketing site & video production",
+          description:
+            "Features pages, OG images, animated explainers, dev blog",
+          type: "milestone",
+        },
+        {
+          title: "Deployment pipeline refined",
+          description:
+            "Resolved recurring CLI issues, env var trailing newlines, branch management",
+          type: "win",
+        },
+        {
+          title: "Context window overflow",
+          description:
+            "11+ parallel sub-agents overwhelmed context — every response truncated",
+          type: "friction",
+        },
+        {
+          title: "Bug-fix-to-PR pipeline mastered",
+          description:
+            "QA report → implement → review → fix findings → push PR, sometimes in under 10 minutes",
+          type: "insight",
+        },
+      ],
+    },
+    {
+      day: "Week 7-8",
+      label: "Reflection & This Site",
+      events: [
+        {
+          title: "This dev log built",
+          description:
+            "Static blog generated from Claude Code /insights data — what you're reading now",
+          type: "milestone",
+        },
+        {
+          title: `${commits} commits shipped`,
+          description: `${totalSessions} sessions, ${data.project_areas.areas.length} project areas, ~2 months of building with Claude Code`,
+          type: "win",
+        },
+        {
+          title: "Key insight crystallized",
+          description:
+            "High-trust delegation with decisive course-correction beats careful upfront specification",
+          type: "insight",
+        },
+        {
+          title: "Patterns documented",
+          description:
+            "Friction points, power user tips, and future workflows captured for others to learn from",
+          type: "insight",
+        },
+      ],
+    },
+  ];
+}
+
+// ── Main ─────────────────────────────────────────────────────────────
+
+function main() {
+  console.log("Generating blog posts from insights data...");
+
+  if (!fs.existsSync(INSIGHTS_PATH)) {
+    console.error(`No insights.json found at ${INSIGHTS_PATH}`);
+    process.exit(1);
+  }
+
+  const raw = fs.readFileSync(INSIGHTS_PATH, "utf-8");
+  const data: InsightsData = JSON.parse(raw);
+
+  const posts = generatePosts(data);
+  const timeline = generateTimeline(data);
+
+  fs.mkdirSync(POSTS_DIR, { recursive: true });
+
+  for (const post of posts) {
+    fs.writeFileSync(
+      path.join(POSTS_DIR, `${post.slug}.json`),
+      JSON.stringify(post, null, 2)
+    );
+  }
+
+  const index = posts.map(({ content: _, ...meta }) => meta);
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, "posts-index.json"),
+    JSON.stringify(index, null, 2)
+  );
+
+  const totalSessions = data.project_areas.areas.reduce(
+    (sum, a) => sum + a.session_count,
+    0
+  );
+  const commits =
+    extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
+    "256";
+  const hours =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d[\d,]+)\s+hours?\s+of\s+usage/
+    ) || "974";
+  const messages =
+    extractNumber(
+      data.interaction_style.narrative,
+      /(\d[\d,]+)\s+messages/
+    ) || "3084";
+
+  const stats: SiteStats = {
+    totalSessions,
+    totalMessages: parseInt(messages.replace(/,/g, "")),
+    totalHours: parseInt(hours.replace(/,/g, "")),
+    totalCommits: parseInt(commits.replace(/,/g, "")),
+    dateRange: "Dec 31 – Feb 24",
+    projectCount: data.project_areas.areas.length,
+  };
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, "site-stats.json"),
+    JSON.stringify(stats, null, 2)
+  );
+
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, "timeline.json"),
+    JSON.stringify(timeline, null, 2)
+  );
+
+  console.log(`Generated ${posts.length} blog posts + timeline`);
+  for (const post of posts) {
+    console.log(`  - ${post.slug}: "${post.title}" (${post.readingTime})`);
+  }
+
+  // Verify no sensitive names leaked
+  const allContent = posts.map((p) => p.content).join("\n") + "\n" + JSON.stringify(timeline);
+  const leaks = ANONYMIZE_RULES.filter(([pattern]) => pattern.test(allContent));
+  if (leaks.length > 0) {
+    console.warn("\n⚠️  WARNING: Sensitive names still present in output:");
+    for (const [pattern] of leaks) {
+      console.warn(`   - Pattern: ${pattern}`);
+    }
+  } else {
+    console.log("✓ No sensitive names detected in output");
+  }
+}
+
+main();
