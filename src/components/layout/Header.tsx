@@ -17,10 +17,10 @@ export function Header() {
             posts
           </Link>
           <Link
-            href="/journey"
+            href="/changelog"
             className="text-text-muted hover:text-foreground transition-colors"
           >
-            journey
+            changelog
           </Link>
         </nav>
       </div>

@@ -1,10 +1,9 @@
 import fs from "fs";
 import path from "path";
-import type { BlogPost, SiteStats, TimelineEvent } from "@/types";
+import type { BlogPost, SiteStats, ChangelogEntry } from "@/types";
 
 import postsIndex from "@/data/posts-index.json";
 import siteStatsData from "@/data/site-stats.json";
-import timelineData from "@/data/timeline.json";
 
 export function getSiteStats(): SiteStats {
   return siteStatsData as SiteStats;
@@ -34,6 +33,8 @@ export function getAllPostSlugs(): string[] {
   return getPostsIndex().map((p) => p.slug);
 }
 
-export function getTimeline(): TimelineEvent[] {
-  return timelineData as TimelineEvent[];
+export function getChangelog(): ChangelogEntry[] {
+  const filePath = path.join(process.cwd(), "src", "data", "changelog.json");
+  const raw = fs.readFileSync(filePath, "utf-8");
+  return JSON.parse(raw) as ChangelogEntry[];
 }

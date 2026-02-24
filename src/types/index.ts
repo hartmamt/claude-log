@@ -22,12 +22,9 @@ export interface SiteStats {
   projectCount: number;
 }
 
-export interface TimelineEvent {
-  day: string;
+export interface ChangelogEntry {
+  date: string;
   label: string;
-  events: {
-    title: string;
-    description: string;
-    type: "milestone" | "win" | "friction" | "insight";
-  }[];
+  stats: { label: string; before: string; after: string }[];
+  newContent: string[];
 }

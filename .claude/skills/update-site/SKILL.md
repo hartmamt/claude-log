@@ -26,7 +26,7 @@ Regenerate the claude_log dev blog with fresh Claude Code insights data. Each ru
    - Anonymize product/client names
    - Convert second-person voice to first-person
    - Run a leak check for sensitive names
-   - Output timeline, stats, and post index
+   - Output changelog, stats, and post index
 
 3. **Verify no sensitive data**: Check the generator output for the "No sensitive names detected" message. If it warns about leaks, update the `ANONYMIZE_RULES` array in `scripts/generate-posts.ts` to add the new patterns.
 
@@ -39,7 +39,7 @@ Regenerate the claude_log dev blog with fresh Claude Code insights data. Each ru
    ```
    npx serve out -p 3333
    ```
-   Then verify: `/`, `/journey`, `/setup`, and all 7 post routes under `/posts/`.
+   Then verify: `/`, `/changelog`, `/setup`, and all 7 post routes under `/posts/`.
 
 6. **Report**: Tell the user what changed — how many archived runs were merged, new session counts, accumulated content stats.
 

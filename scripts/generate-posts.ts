@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import type { BlogPost, SiteStats, TimelineEvent } from "../src/types";
+import type { BlogPost, SiteStats, ChangelogEntry } from "../src/types";
 
 interface InsightsData {
   project_areas: {
@@ -623,154 +623,133 @@ After working with Claude across all ${projectCount} areas, a few things became 
   return posts;
 }
 
-// ── Timeline generation ──────────────────────────────────────────────
-// Smart timeline: reads existing timeline.json, auto-generates new events
-// from insights data, merges (deduplicating by title), and preserves
-// any manually-added entries.
+// ── Changelog generation ─────────────────────────────────────────────
+// Reads all archived insights files and computes deltas between
+// consecutive runs to produce a changelog that grows automatically.
 
-const TIMELINE_PATH = path.join(OUTPUT_DIR, "timeline.json");
+function generateChangelog(allRuns: InsightsData[], archiveFiles: string[]): ChangelogEntry[] {
+  const entries: ChangelogEntry[] = [];
 
-type TimelineEventItem = {
-  title: string;
-  description: string;
-  type: "milestone" | "win" | "friction" | "insight";
-};
+  for (let i = 0; i < allRuns.length; i++) {
+    const current = allRuns[i];
+    const date = archiveFiles[i].replace(".json", "");
+    const totalSessions = current.project_areas.areas.reduce((s, a) => s + a.session_count, 0);
+    const commits = extractNumber(current.interaction_style.narrative, /(\d+)\s+commits/) || "0";
+    const hours = extractNumber(current.interaction_style.narrative, /(\d[\d,]+)\s+hours?\s+of\s+usage/) || "0";
+    const fileTouches = extractNumber(current.interaction_style.narrative, /(\d[\d,]+)\s+file\s+touches/i) || "0";
 
-function loadExistingTimeline(): TimelineEvent[] {
-  if (!fs.existsSync(TIMELINE_PATH)) return [];
-  const raw = fs.readFileSync(TIMELINE_PATH, "utf-8");
-  return JSON.parse(raw);
-}
-
-/** Extract timeline events from insights data */
-function extractEventsFromInsights(data: InsightsData): TimelineEventItem[] {
-  const events: TimelineEventItem[] = [];
-
-  // Project areas → milestones
-  for (const area of data.project_areas.areas) {
-    events.push({
-      title: `${area.session_count} sessions: ${anonymize(area.name)}`,
-      description: clean(area.description).slice(0, 120),
-      type: "milestone",
-    });
-  }
-
-  // Impressive workflows → wins
-  for (const w of data.what_works.impressive_workflows) {
-    events.push({
-      title: w.title,
-      description: clean(w.description).slice(0, 150),
-      type: "win",
-    });
-  }
-
-  // Friction categories → friction events (one per category)
-  for (const cat of data.friction_analysis.categories) {
-    events.push({
-      title: cat.category,
-      description: clean(cat.description).slice(0, 150),
-      type: "friction",
-    });
-  }
-
-  // Key pattern → insight
-  if (data.interaction_style.key_pattern) {
-    events.push({
-      title: "Key pattern identified",
-      description: clean(data.interaction_style.key_pattern),
-      type: "insight",
-    });
-  }
-
-  // Fun ending → insight
-  if (data.fun_ending.headline) {
-    const headline = clean(data.fun_ending.headline);
-    events.push({
-      title: headline.length > 80 ? headline.slice(0, 77) + "..." : headline,
-      description: clean(data.fun_ending.detail).slice(0, 150),
-      type: "insight",
-    });
-  }
-
-  return events;
-}
-
-/** Deduplicate events by title (first 40 chars, lowercased) */
-function dedupeEvents(events: TimelineEventItem[]): TimelineEventItem[] {
-  const seen = new Set<string>();
-  return events.filter((e) => {
-    const key = e.title.toLowerCase().slice(0, 40).trim();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function generateTimeline(data: InsightsData): TimelineEvent[] {
-  const existing = loadExistingTimeline();
-  const today = new Date().toISOString().split("T")[0];
-
-  const totalSessions = data.project_areas.areas.reduce(
-    (s, a) => s + a.session_count,
-    0
-  );
-  const commits =
-    extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
-    "256";
-
-  // Collect all existing event titles for dedup
-  const existingTitles = new Set<string>();
-  for (const day of existing) {
-    for (const event of day.events) {
-      existingTitles.add(event.title.toLowerCase().slice(0, 40).trim());
+    if (i === 0) {
+      // First archive — "Site launched" entry with absolute stats
+      entries.push({
+        date,
+        label: "Site launched",
+        stats: [
+          { label: "Sessions", before: "—", after: totalSessions.toString() },
+          { label: "Commits", before: "—", after: commits },
+          { label: "Hours", before: "—", after: hours },
+          { label: "File touches", before: "—", after: fileTouches },
+        ],
+        newContent: [
+          ...current.what_works.impressive_workflows.map(
+            (w) => `New workflow: ${clean(w.title)}`
+          ),
+          ...current.friction_analysis.categories.map(
+            (c) => `Friction area: ${clean(c.category)}`
+          ),
+          ...current.project_areas.areas.map(
+            (a) => `Project area: ${clean(anonymize(a.name))}`
+          ),
+        ],
+      });
+      continue;
     }
-  }
 
-  // Auto-generate events from insights
-  const autoEvents = extractEventsFromInsights(data);
+    // Compare with previous archive
+    const prev = allRuns[i - 1];
+    const prevSessions = prev.project_areas.areas.reduce((s, a) => s + a.session_count, 0);
+    const prevCommits = extractNumber(prev.interaction_style.narrative, /(\d+)\s+commits/) || "0";
+    const prevHours = extractNumber(prev.interaction_style.narrative, /(\d[\d,]+)\s+hours?\s+of\s+usage/) || "0";
+    const prevFileTouches = extractNumber(prev.interaction_style.narrative, /(\d[\d,]+)\s+file\s+touches/i) || "0";
 
-  // Filter to only genuinely new events
-  const newEvents = autoEvents.filter(
-    (e) => !existingTitles.has(e.title.toLowerCase().slice(0, 40).trim())
-  );
+    // Compute stat deltas
+    const stats: { label: string; before: string; after: string }[] = [];
+    const sessionDelta = totalSessions - prevSessions;
+    if (sessionDelta !== 0) {
+      stats.push({ label: "Sessions", before: prevSessions.toString(), after: `${totalSessions} (${sessionDelta > 0 ? "+" : ""}${sessionDelta})` });
+    }
+    if (commits !== prevCommits) {
+      stats.push({ label: "Commits", before: prevCommits, after: commits });
+    }
+    if (hours !== prevHours) {
+      stats.push({ label: "Hours", before: prevHours, after: hours });
+    }
+    if (fileTouches !== prevFileTouches) {
+      stats.push({ label: "File touches", before: prevFileTouches, after: fileTouches });
+    }
 
-  // Always generate a summary event with current stats
-  // Update the stats event in the last existing period if it exists
-  const statsTitle = `${commits} commits shipped`;
-  const statsEvent: TimelineEventItem = {
-    title: statsTitle,
-    description: `${totalSessions} sessions, ${data.project_areas.areas.length} project areas — building with Claude Code`,
-    type: "win",
-  };
+    // Detect new content
+    const newContent: string[] = [];
 
-  // Remove any old "X commits shipped" events from existing timeline
-  for (const day of existing) {
-    day.events = day.events.filter(
-      (e) => !e.title.match(/^\d+ commits shipped$/)
+    // New workflows
+    const prevWorkflowTitles = new Set(prev.what_works.impressive_workflows.map((w) => w.title.toLowerCase()));
+    for (const w of current.what_works.impressive_workflows) {
+      if (!prevWorkflowTitles.has(w.title.toLowerCase())) {
+        newContent.push(`New workflow: ${clean(w.title)}`);
+      }
+    }
+
+    // New friction categories
+    const prevFrictionCats = new Set(prev.friction_analysis.categories.map((c) => c.category.toLowerCase()));
+    for (const c of current.friction_analysis.categories) {
+      if (!prevFrictionCats.has(c.category.toLowerCase())) {
+        newContent.push(`New friction area: ${clean(c.category)}`);
+      }
+    }
+
+    // New friction examples
+    const prevExamples = new Set(
+      prev.friction_analysis.categories.flatMap((c) =>
+        c.examples.map((e) => e.toLowerCase().slice(0, 60))
+      )
     );
-  }
-
-  if (newEvents.length === 0) {
-    // No new events — just update stats in the last period
-    if (existing.length > 0) {
-      existing[existing.length - 1].events.push(statsEvent);
+    for (const c of current.friction_analysis.categories) {
+      for (const ex of c.examples) {
+        if (!prevExamples.has(ex.toLowerCase().slice(0, 60))) {
+          newContent.push(`New friction example in ${clean(c.category)}`);
+        }
+      }
     }
-    console.log(`  Timeline: no new events, updated stats`);
-    return existing;
+
+    // New project areas
+    const prevAreas = new Set(prev.project_areas.areas.map((a) => a.name.toLowerCase()));
+    for (const a of current.project_areas.areas) {
+      if (!prevAreas.has(a.name.toLowerCase())) {
+        newContent.push(`New project area: ${clean(anonymize(a.name))}`);
+      }
+    }
+
+    // New suggestions (usage patterns)
+    const prevPatterns = new Set(prev.suggestions.usage_patterns.map((p) => p.title.toLowerCase()));
+    for (const p of current.suggestions.usage_patterns) {
+      if (!prevPatterns.has(p.title.toLowerCase())) {
+        newContent.push(`New tip: ${clean(p.title)}`);
+      }
+    }
+
+    // Build summary label
+    const labelParts: string[] = [];
+    if (sessionDelta > 0) labelParts.push(`+${sessionDelta} sessions`);
+    const newWorkflowCount = current.what_works.impressive_workflows.filter(
+      (w) => !prevWorkflowTitles.has(w.title.toLowerCase())
+    ).length;
+    if (newWorkflowCount > 0) labelParts.push(`${newWorkflowCount} new workflow${newWorkflowCount > 1 ? "s" : ""}`);
+    if (newContent.length === 0 && stats.length === 0) continue; // skip if nothing changed
+    const label = labelParts.length > 0 ? labelParts.join(", ") : `${stats.length} stat update${stats.length !== 1 ? "s" : ""}`;
+
+    entries.push({ date, label, stats, newContent });
   }
 
-  // Add new events as a new dated period
-  const newPeriod: TimelineEvent = {
-    day: today,
-    label: `Update — ${newEvents.length} new events`,
-    events: dedupeEvents([...newEvents, statsEvent]),
-  };
-
-  console.log(
-    `  Timeline: ${newEvents.length} new events added for ${today}`
-  );
-
-  return [...existing, newPeriod];
+  return entries;
 }
 
 // ── Archive & Merge ──────────────────────────────────────────────────
@@ -975,7 +954,12 @@ function main() {
   );
 
   const posts = generatePosts(data);
-  const timeline = generateTimeline(data);
+
+  // Generate changelog from archive diffs
+  const archiveFiles = fs.existsSync(ARCHIVE_DIR)
+    ? fs.readdirSync(ARCHIVE_DIR).filter((f) => f.endsWith(".json")).sort()
+    : [];
+  const changelog = generateChangelog(allRuns, archiveFiles);
 
   fs.mkdirSync(POSTS_DIR, { recursive: true });
 
@@ -1024,17 +1008,17 @@ function main() {
   );
 
   fs.writeFileSync(
-    path.join(OUTPUT_DIR, "timeline.json"),
-    JSON.stringify(timeline, null, 2)
+    path.join(OUTPUT_DIR, "changelog.json"),
+    JSON.stringify(changelog, null, 2)
   );
 
-  console.log(`Generated ${posts.length} blog posts + timeline`);
+  console.log(`Generated ${posts.length} blog posts + changelog (${changelog.length} entries)`);
   for (const post of posts) {
     console.log(`  - ${post.slug}: "${post.title}" (${post.readingTime})`);
   }
 
   // Verify no sensitive names leaked
-  const allContent = posts.map((p) => p.content).join("\n") + "\n" + JSON.stringify(timeline);
+  const allContent = posts.map((p) => p.content).join("\n") + "\n" + JSON.stringify(changelog);
   const leaks = ANONYMIZE_RULES.filter(([pattern]) => pattern.test(allContent));
   if (leaks.length > 0) {
     console.warn("\n⚠️  WARNING: Sensitive names still present in output:");

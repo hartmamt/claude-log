@@ -42,10 +42,10 @@ export default function HomePage() {
             All Posts
           </h2>
           <Link
-            href="/journey"
+            href="/changelog"
             className="text-xs text-secondary hover:underline"
           >
-            view timeline
+            view changelog
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

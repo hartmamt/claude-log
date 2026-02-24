@@ -284,22 +284,3 @@ body {
   color: var(--color-text-muted);
 }
 
-/* Timeline */
-.timeline-line {
-  position: absolute;
-  left: 19px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--color-border);
-}
-
-.timeline-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid;
-  background: var(--color-background);
-  position: relative;
-  z-index: 1;
-}

@@ -1,0 +1,41 @@
+[
+  {
+    "date": "2026-02-24",
+    "label": "Site launched",
+    "stats": [
+      {
+        "label": "Sessions",
+        "before": "—",
+        "after": "180"
+      },
+      {
+        "label": "Commits",
+        "before": "—",
+        "after": "256"
+      },
+      {
+        "label": "Hours",
+        "before": "—",
+        "after": "974"
+      },
+      {
+        "label": "File touches",
+        "before": "—",
+        "after": "4,169"
+      }
+    ],
+    "newContent": [
+      "New workflow: End-to-End Feature Lifecycle Mastery",
+      "New workflow: Parallel Sub-Agent Architecture Audits",
+      "New workflow: Rapid Bug-Fix-to-PR Pipeline",
+      "Friction area: Buggy Code Shipped Without Adequate Verification",
+      "Friction area: Excessive Planning and Exploration Without Producing Output",
+      "Friction area: Git and Deployment Workflow Missteps",
+      "Project area: the platform SaaS Platform Development",
+      "Project area: MCP Tools, Connectors & Agent Infrastructure",
+      "Project area: Stripe Connect & Billing Integration",
+      "Project area: Marketing Site, Content & Video Production",
+      "Project area: DevOps, Deployment & Infrastructure"
+    ]
+  }
+]
