@@ -5,7 +5,7 @@
     "events": [
       {
         "title": "Platform kickoff",
-        "description": "Started building core SaaS platform — dashboard, onboarding, page editor, pipeline board across 85 sessions",
+        "description": "Started building core SaaS platform — dashboard, onboarding, page editor, pipeline board",
         "type": "milestone"
       },
       {
@@ -97,11 +97,6 @@
         "type": "milestone"
       },
       {
-        "title": "256 commits shipped",
-        "description": "180 sessions, 5 project areas, ~2 months of building with Claude Code",
-        "type": "win"
-      },
-      {
         "title": "Key insight crystallized",
         "description": "High-trust delegation with decisive course-correction beats careful upfront specification",
         "type": "insight"
@@ -110,6 +105,82 @@
         "title": "Patterns documented",
         "description": "Friction points, power user tips, and future workflows captured for others to learn from",
         "type": "insight"
+      }
+    ]
+  },
+  {
+    "day": "2026-02-24",
+    "label": "Update — 13 new events",
+    "events": [
+      {
+        "title": "85 sessions: the platform SaaS Platform Development",
+        "description": "Core product development for the platform, a SaaS platform with dashboard, onboarding flows, agent chat, page editor, pi",
+        "type": "milestone"
+      },
+      {
+        "title": "35 sessions: MCP Tools, Connectors & Agent Infrastructure",
+        "description": "Building and debugging MCP (Model Context Protocol) tools, connectors (Calendly, a third-party service, Google Reviews),",
+        "type": "milestone"
+      },
+      {
+        "title": "15 sessions: Stripe Connect & Billing Integration",
+        "description": "Full Stripe Connect integration including building the payment infrastructure, configuring production Stripe settings, f",
+        "type": "milestone"
+      },
+      {
+        "title": "25 sessions: Marketing Site, Content & Video Production",
+        "description": "Work on a marketing/landing site including features pages with screenshots, OG images, favicon, privacy/terms pages, cop",
+        "type": "milestone"
+      },
+      {
+        "title": "20 sessions: DevOps, Deployment & Infrastructure",
+        "description": "Deployment workflows, Git operations, Supabase migration management, Vercel configuration, Terraform fixes for AWS (EC2 ",
+        "type": "milestone"
+      },
+      {
+        "title": "End-to-End Feature Lifecycle Mastery",
+        "description": "I consistently drive features from planning through implementation, code review, PR creation, and deployment all within single sessions. Whether it's ",
+        "type": "win"
+      },
+      {
+        "title": "Parallel Sub-Agent Architecture Audits",
+        "description": "I've leveraged advanced agentic patterns like spawning 8 parallel sub-agents for a codebase architecture audit, producing a scored assessment that fee",
+        "type": "win"
+      },
+      {
+        "title": "Rapid Bug-Fix-to-PR Pipeline",
+        "description": "I've developed an incredibly efficient bug fix workflow where I feed Claude a plan or QA report, have it implement fixes across multiple files, run co",
+        "type": "win"
+      },
+      {
+        "title": "Buggy Code Shipped Without Adequate Verification",
+        "description": "Claude frequently delivers code with runtime bugs that only surface when I test or deploy, forcing me into multiple fix cycles. I could ask Claude to ",
+        "type": "friction"
+      },
+      {
+        "title": "Excessive Planning and Exploration Without Producing Output",
+        "description": "In multiple sessions, Claude spent the entire available time reading files and writing plans without generating any actual code, forcing me to interru",
+        "type": "friction"
+      },
+      {
+        "title": "Git and Deployment Workflow Missteps",
+        "description": "Claude makes errors in git operations and deployment steps — pushing to wrong branches, failing to push changes, and struggling with environment confi",
+        "type": "friction"
+      },
+      {
+        "title": "Key pattern identified",
+        "description": "I'm a fast-shipping founder-developer who chains entire feature lifecycles into single sessions and interrupts Claude the moment it over-plans instead of building.",
+        "type": "insight"
+      },
+      {
+        "title": "Claude spent an entire session reading files and planning a Remotion animated...",
+        "description": "The user wanted an animated explainer video for the platform built with Remotion. Claude burned through 8 full minutes deep in exploration mode — read",
+        "type": "insight"
+      },
+      {
+        "title": "256 commits shipped",
+        "description": "180 sessions, 5 project areas — building with Claude Code",
+        "type": "win"
       }
     ]
   }

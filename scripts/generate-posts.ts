@@ -95,12 +95,15 @@ function secondToFirstPerson(text: string): string {
     // "Your" → "My"
     [/\bYour\b/g, "My"],
     [/\byour\b/g, "my"],
-    // "You" (subject) → "I"
-    [/\bYou\b/g, "I"],
-    [/\byou\b/g, "I"],
     // "yourself" → "myself"
     [/\byourself\b/g, "myself"],
     [/\bYourself\b/g, "Myself"],
+    // Object-position "you" → "me" (after prepositions)
+    [/\b(forcing|asking|telling|giving|showing|helping|letting|making|costing) you\b/gi, "$1 me"],
+    [/\b(for|to|from|with|about|at|by|into|onto|upon) you\b/gi, "$1 me"],
+    // Subject-position "You" → "I" (everything else)
+    [/\bYou\b/g, "I"],
+    [/\byou\b/g, "I"],
   ];
 
   for (const [pattern, replacement] of replacements) {
@@ -621,8 +624,92 @@ After working with Claude across all ${projectCount} areas, a few things became 
 }
 
 // ── Timeline generation ──────────────────────────────────────────────
+// Smart timeline: reads existing timeline.json, auto-generates new events
+// from insights data, merges (deduplicating by title), and preserves
+// any manually-added entries.
+
+const TIMELINE_PATH = path.join(OUTPUT_DIR, "timeline.json");
+
+type TimelineEventItem = {
+  title: string;
+  description: string;
+  type: "milestone" | "win" | "friction" | "insight";
+};
+
+function loadExistingTimeline(): TimelineEvent[] {
+  if (!fs.existsSync(TIMELINE_PATH)) return [];
+  const raw = fs.readFileSync(TIMELINE_PATH, "utf-8");
+  return JSON.parse(raw);
+}
+
+/** Extract timeline events from insights data */
+function extractEventsFromInsights(data: InsightsData): TimelineEventItem[] {
+  const events: TimelineEventItem[] = [];
+
+  // Project areas → milestones
+  for (const area of data.project_areas.areas) {
+    events.push({
+      title: `${area.session_count} sessions: ${anonymize(area.name)}`,
+      description: clean(area.description).slice(0, 120),
+      type: "milestone",
+    });
+  }
+
+  // Impressive workflows → wins
+  for (const w of data.what_works.impressive_workflows) {
+    events.push({
+      title: w.title,
+      description: clean(w.description).slice(0, 150),
+      type: "win",
+    });
+  }
+
+  // Friction categories → friction events (one per category)
+  for (const cat of data.friction_analysis.categories) {
+    events.push({
+      title: cat.category,
+      description: clean(cat.description).slice(0, 150),
+      type: "friction",
+    });
+  }
+
+  // Key pattern → insight
+  if (data.interaction_style.key_pattern) {
+    events.push({
+      title: "Key pattern identified",
+      description: clean(data.interaction_style.key_pattern),
+      type: "insight",
+    });
+  }
+
+  // Fun ending → insight
+  if (data.fun_ending.headline) {
+    const headline = clean(data.fun_ending.headline);
+    events.push({
+      title: headline.length > 80 ? headline.slice(0, 77) + "..." : headline,
+      description: clean(data.fun_ending.detail).slice(0, 150),
+      type: "insight",
+    });
+  }
+
+  return events;
+}
+
+/** Deduplicate events by title (first 40 chars, lowercased) */
+function dedupeEvents(events: TimelineEventItem[]): TimelineEventItem[] {
+  const seen = new Set<string>();
+  return events.filter((e) => {
+    const key = e.title.toLowerCase().slice(0, 40).trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 function generateTimeline(data: InsightsData): TimelineEvent[] {
+  const existing = loadExistingTimeline();
+  const today = new Date().toISOString().split("T")[0];
+
   const totalSessions = data.project_areas.areas.reduce(
     (s, a) => s + a.session_count,
     0
@@ -631,138 +718,59 @@ function generateTimeline(data: InsightsData): TimelineEvent[] {
     extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
     "256";
 
-  return [
-    {
-      day: "Week 1-2",
-      label: "Foundation & Core Product",
-      events: [
-        {
-          title: "Platform kickoff",
-          description: `Started building core SaaS platform — dashboard, onboarding, page editor, pipeline board across ${data.project_areas.areas[0].session_count} sessions`,
-          type: "milestone",
-        },
-        {
-          title: "MCP tools & agent infrastructure",
-          description:
-            "Built and debugged MCP tools, agent engine, streaming endpoints, and agent architecture",
-          type: "milestone",
-        },
-        {
-          title: "First major integrations",
-          description:
-            "Calendar connector (1,352 lines, 12 files), OAuth setup, database migrations",
-          type: "win",
-        },
-        {
-          title: "Planning paralysis discovered",
-          description:
-            "Claude spent entire sessions exploring code without producing any changes — a pattern that would recur",
-          type: "friction",
-        },
-      ],
-    },
-    {
-      day: "Week 3-4",
-      label: "Shipping & Scaling",
-      events: [
-        {
-          title: "Payment integration",
-          description:
-            "Full payment infrastructure — production config, deploy bug fixes, cost optimization",
-          type: "win",
-        },
-        {
-          title: "Overnight autonomous builds",
-          description:
-            "'Build a surprising SaaS feature overnight' — woke up to 2,123 lines of working code",
-          type: "win",
-        },
-        {
-          title: "Client demos shipped",
-          description:
-            "Demo with chat handoffs, transfer analytics, custom theming",
-          type: "win",
-        },
-        {
-          title: "Ghost migration incident",
-          description:
-            "Critical bug fix appeared complete but migration was ghost-applied — never actually executed",
-          type: "friction",
-        },
-        {
-          title: "Parallel sub-agent architecture audit",
-          description:
-            "Dispatched 8 sub-agents for security, performance, TypeScript, and architecture reviews simultaneously",
-          type: "milestone",
-        },
-      ],
-    },
-    {
-      day: "Week 5-6",
-      label: "Polish & Patterns",
-      events: [
-        {
-          title: "Dark editorial theming",
-          description:
-            "13+ file theme migration to match modern dark aesthetic site-wide",
-          type: "win",
-        },
-        {
-          title: "Marketing site & video production",
-          description:
-            "Features pages, OG images, animated explainers, dev blog",
-          type: "milestone",
-        },
-        {
-          title: "Deployment pipeline refined",
-          description:
-            "Resolved recurring CLI issues, env var trailing newlines, branch management",
-          type: "win",
-        },
-        {
-          title: "Context window overflow",
-          description:
-            "11+ parallel sub-agents overwhelmed context — every response truncated",
-          type: "friction",
-        },
-        {
-          title: "Bug-fix-to-PR pipeline mastered",
-          description:
-            "QA report → implement → review → fix findings → push PR, sometimes in under 10 minutes",
-          type: "insight",
-        },
-      ],
-    },
-    {
-      day: "Week 7-8",
-      label: "Reflection & This Site",
-      events: [
-        {
-          title: "This dev log built",
-          description:
-            "Static blog generated from Claude Code /insights data — what you're reading now",
-          type: "milestone",
-        },
-        {
-          title: `${commits} commits shipped`,
-          description: `${totalSessions} sessions, ${data.project_areas.areas.length} project areas, ~2 months of building with Claude Code`,
-          type: "win",
-        },
-        {
-          title: "Key insight crystallized",
-          description:
-            "High-trust delegation with decisive course-correction beats careful upfront specification",
-          type: "insight",
-        },
-        {
-          title: "Patterns documented",
-          description:
-            "Friction points, power user tips, and future workflows captured for others to learn from",
-          type: "insight",
-        },
-      ],
-    },
-  ];
+  // Collect all existing event titles for dedup
+  const existingTitles = new Set<string>();
+  for (const day of existing) {
+    for (const event of day.events) {
+      existingTitles.add(event.title.toLowerCase().slice(0, 40).trim());
+    }
+  }
+
+  // Auto-generate events from insights
+  const autoEvents = extractEventsFromInsights(data);
+
+  // Filter to only genuinely new events
+  const newEvents = autoEvents.filter(
+    (e) => !existingTitles.has(e.title.toLowerCase().slice(0, 40).trim())
+  );
+
+  // Always generate a summary event with current stats
+  // Update the stats event in the last existing period if it exists
+  const statsTitle = `${commits} commits shipped`;
+  const statsEvent: TimelineEventItem = {
+    title: statsTitle,
+    description: `${totalSessions} sessions, ${data.project_areas.areas.length} project areas — building with Claude Code`,
+    type: "win",
+  };
+
+  // Remove any old "X commits shipped" events from existing timeline
+  for (const day of existing) {
+    day.events = day.events.filter(
+      (e) => !e.title.match(/^\d+ commits shipped$/)
+    );
+  }
+
+  if (newEvents.length === 0) {
+    // No new events — just update stats in the last period
+    if (existing.length > 0) {
+      existing[existing.length - 1].events.push(statsEvent);
+    }
+    console.log(`  Timeline: no new events, updated stats`);
+    return existing;
+  }
+
+  // Add new events as a new dated period
+  const newPeriod: TimelineEvent = {
+    day: today,
+    label: `Update — ${newEvents.length} new events`,
+    events: dedupeEvents([...newEvents, statsEvent]),
+  };
+
+  console.log(
+    `  Timeline: ${newEvents.length} new events added for ${today}`
+  );
+
+  return [...existing, newPeriod];
 }
 
 // ── Archive & Merge ──────────────────────────────────────────────────
