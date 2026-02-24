@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useRef } from "react";
 import { z } from "zod";
 import type { WrappedData } from "@/types";
 import { WrappedLanding } from "./WrappedLanding";
@@ -57,7 +57,6 @@ function extractWrappedData(insights: ValidatedInsights): WrappedData {
     totalMessages: extractNumber(narrative, /(\d[\d,]*)\s+messages/),
     totalHours: extractNumber(narrative, /(\d[\d,]*)\s+hours?\s+of\s+usage/),
     totalCommits: extractNumber(narrative, /(\d[\d,]*)\s+commits/),
-    dateRange: { start: "2025-01-01", end: new Date().toISOString().split("T")[0] },
     projects: areas.map((a) => ({
       name: sanitize(a.name, 100),
       sessions: a.session_count,
@@ -66,7 +65,6 @@ function extractWrappedData(insights: ValidatedInsights): WrappedData {
     topWorkflow: insights.what_works.impressive_workflows[0]?.title
       ? sanitize(insights.what_works.impressive_workflows[0].title)
       : null,
-    topStrength: null,
     personality: sanitize(insights.interaction_style.key_pattern, 200),
   };
 }
@@ -79,15 +77,10 @@ function parseInsights(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { success: false, error: "Invalid JSON syntax. Check for missing brackets or commas." };
-  }
-
-  // Strip prototype pollution keys
-  if (parsed && typeof parsed === "object") {
-    const obj = parsed as Record<string, unknown>;
-    delete obj["__proto__"];
-    delete obj["constructor"];
-    delete obj["prototype"];
+    return {
+      success: false,
+      error: "Invalid JSON syntax. Check for missing brackets or commas.",
+    };
   }
 
   const result = InsightsSchema.safeParse(parsed);
@@ -116,11 +109,16 @@ type WrappedAction =
   | { type: "TRY_OWN" }
   | { type: "RESET" };
 
-function wrappedReducer(state: WrappedState, action: WrappedAction): WrappedState {
+function wrappedReducer(
+  state: WrappedState,
+  action: WrappedAction
+): WrappedState {
   switch (action.type) {
     case "START_DEMO":
+      if (state.phase !== "landing") return state;
       return { phase: "story", data: action.data, isDemo: true };
     case "DATA_LOADED":
+      if (state.phase !== "landing") return state;
       return { phase: "story", data: action.data, isDemo: false };
     case "STORY_COMPLETE":
       if (state.phase === "story") {
@@ -144,29 +142,47 @@ const MAX_FILE_SIZE = 1_048_576; // 1MB
 
 export function WrappedApp() {
   const [state, dispatch] = useReducer(wrappedReducer, { phase: "landing" });
+  const demoLoadingRef = useRef(false);
 
-  const handleFile = useCallback(
-    async (file: File) => {
-      if (file.size > MAX_FILE_SIZE) {
-        return "File too large. Insights JSON files are typically under 50KB.";
-      }
-      const text = await file.text();
-      const result = parseInsights(text);
-      if (!result.success) return result.error;
-      dispatch({ type: "DATA_LOADED", data: result.data });
-      return null;
-    },
-    []
-  );
+  const handleFile = useCallback(async (file: File) => {
+    if (file.size > MAX_FILE_SIZE) {
+      return "File too large. Insights JSON files are typically under 50KB.";
+    }
+    const text = await file.text();
+    const result = parseInsights(text);
+    if (!result.success) return result.error;
+    dispatch({ type: "DATA_LOADED", data: result.data });
+    return null;
+  }, []);
 
   const handleDemo = useCallback(async () => {
-    const response = await fetch("/demo-insights.json");
-    const raw = await response.text();
-    const result = parseInsights(raw);
-    if (result.success) {
-      dispatch({ type: "START_DEMO", data: result.data });
+    if (demoLoadingRef.current) return;
+    demoLoadingRef.current = true;
+    try {
+      const response = await fetch("/demo-insights.json");
+      if (!response.ok) return;
+      const raw = await response.text();
+      const result = parseInsights(raw);
+      if (result.success) {
+        dispatch({ type: "START_DEMO", data: result.data });
+      }
+    } catch {
+      // Demo fetch failed silently
+    } finally {
+      demoLoadingRef.current = false;
     }
   }, []);
+
+  const handleStoryComplete = useCallback(
+    () => dispatch({ type: "STORY_COMPLETE" }),
+    []
+  );
+  const handleReset = useCallback(() => dispatch({ type: "RESET" }), []);
+  const handleWatchAgain = useCallback(
+    () => dispatch({ type: "WATCH_AGAIN" }),
+    []
+  );
+  const handleTryOwn = useCallback(() => dispatch({ type: "TRY_OWN" }), []);
 
   if (state.phase === "landing") {
     return <WrappedLanding onFile={handleFile} onDemo={handleDemo} />;
@@ -176,8 +192,8 @@ export function WrappedApp() {
     return (
       <WrappedStory
         data={state.data}
-        onComplete={() => dispatch({ type: "STORY_COMPLETE" })}
-        onExit={() => dispatch({ type: "RESET" })}
+        onComplete={handleStoryComplete}
+        onExit={handleReset}
       />
     );
   }
@@ -186,8 +202,8 @@ export function WrappedApp() {
     <WrappedCard
       data={state.data}
       isDemo={state.isDemo}
-      onWatchAgain={() => dispatch({ type: "WATCH_AGAIN" })}
-      onTryOwn={() => dispatch({ type: "TRY_OWN" })}
+      onWatchAgain={handleWatchAgain}
+      onTryOwn={handleTryOwn}
     />
   );
 }

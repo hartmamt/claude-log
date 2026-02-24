@@ -2,36 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { WrappedData, WrappedProject } from "@/types";
-
-// --- Coding personality archetypes ---
-function getCodingArchetype(data: WrappedData): string {
-  const avgDuration =
-    data.totalSessions > 0 ? data.totalHours / data.totalSessions : 0;
-  const commitRatio =
-    data.totalSessions > 0 ? data.totalCommits / data.totalSessions : 0;
-
-  if (data.projects.length >= 4) return "The Polyglot";
-  if (commitRatio > 1.2) return "The Shipper";
-  if (data.totalSessions > 100 && avgDuration < 3) return "The Sprinter";
-  if (data.totalSessions < 50 && avgDuration > 6) return "The Deep Diver";
-  return "The Builder";
-}
-
-function getArchetypeDescription(data: WrappedData): string {
-  const archetype = getCodingArchetype(data);
-  switch (archetype) {
-    case "The Sprinter":
-      return "Rapid-fire micro-sessions. You move fast and iterate faster.";
-    case "The Deep Diver":
-      return "Marathon coding blocks. Deep focus, deep impact.";
-    case "The Shipper":
-      return "Ship fast, commit often. You turn ideas into production code.";
-    case "The Polyglot":
-      return "Working across many codebases. A true multi-project operator.";
-    default:
-      return "Consistent, steady progress. Building something great, one session at a time.";
-  }
-}
+import { getCodingArchetype, getArchetypeDescription } from "./archetypes";
 
 function deriveWorkWeeks(hours: number): string {
   return (Math.round((hours / 40) * 10) / 10).toString();
@@ -51,6 +22,7 @@ type SlideContent =
   | { kind: "quote"; label: string; quote: string }
   | {
       kind: "summary";
+      year: number;
       sessions: number;
       messages: number;
       hours: number;
@@ -115,11 +87,14 @@ const SLIDES: SlideConfig[] = [
     id: "personality",
     gradient: "wrapped-bg-mesh",
     shouldShow: () => true,
-    extract: (d) => ({
-      kind: "hero",
-      title: getCodingArchetype(d),
-      subtitle: getArchetypeDescription(d),
-    }),
+    extract: (d) => {
+      const archetype = getCodingArchetype(d);
+      return {
+        kind: "hero",
+        title: archetype,
+        subtitle: getArchetypeDescription(archetype),
+      };
+    },
   },
   {
     id: "projects",
@@ -138,7 +113,7 @@ const SLIDES: SlideConfig[] = [
     extract: (d) => ({
       kind: "quote",
       label: "TOP WORKFLOW",
-      quote: d.topWorkflow!,
+      quote: d.topWorkflow ?? "",
     }),
   },
   {
@@ -147,6 +122,7 @@ const SLIDES: SlideConfig[] = [
     shouldShow: () => true,
     extract: (d) => ({
       kind: "summary",
+      year: d.year,
       sessions: d.totalSessions,
       messages: d.totalMessages,
       hours: d.totalHours,
@@ -181,11 +157,11 @@ function AnimatedNumber({
     let rafId: number;
 
     function animate(ts: number) {
-      if (canceled.current) return;
+      if (canceled.current || !el) return;
       if (!start) start = ts;
       const progress = Math.min((ts - start) / 1000, 1);
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      el!.textContent = Math.round(eased * value).toLocaleString();
+      el.textContent = Math.round(eased * value).toLocaleString();
       if (progress < 1) rafId = requestAnimationFrame(animate);
     }
 
@@ -238,7 +214,10 @@ function SlideRenderer({
       );
 
     case "bar-chart": {
-      const maxSessions = Math.max(...content.items.map((i) => i.sessions));
+      const maxSessions = Math.max(
+        ...content.items.map((i) => i.sessions),
+        1
+      );
       return (
         <div className="flex flex-col items-center justify-center px-8 gap-6 w-full max-w-lg">
           <p className="font-mono text-xs tracking-[0.25em] uppercase text-white/50">
@@ -259,9 +238,7 @@ function SlideRenderer({
                   <div
                     className="h-full bg-gradient-to-r from-indigo-400 to-emerald-400 rounded-full transition-all duration-700 ease-out"
                     style={{
-                      width: reducedMotion
-                        ? `${(item.sessions / maxSessions) * 100}%`
-                        : `${(item.sessions / maxSessions) * 100}%`,
+                      width: `${(item.sessions / maxSessions) * 100}%`,
                     }}
                   />
                 </div>
@@ -296,7 +273,7 @@ function SlideRenderer({
       return (
         <div className="flex flex-col items-center justify-center px-8 gap-8 text-center">
           <p className="font-mono text-xs tracking-[0.25em] uppercase text-white/50">
-            YOUR {new Date().getFullYear()} WRAPPED
+            YOUR {content.year} WRAPPED
           </p>
           <div className="grid grid-cols-2 gap-6 max-w-sm">
             {[
@@ -359,8 +336,11 @@ export function WrappedStory({
   onExit: () => void;
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [transitioning, setTransitioning] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const slideIndexRef = useRef(0);
+  const transitionLockRef = useRef(false);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Prefers-reduced-motion
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -379,38 +359,56 @@ export function WrappedStory({
   );
 
   // Preload modern-screenshot on penultimate slide
+  const preloaded = useRef(false);
   useEffect(() => {
-    if (currentSlide >= activeSlides.length - 2) {
+    if (!preloaded.current && currentSlide >= activeSlides.length - 2) {
+      preloaded.current = true;
       import("modern-screenshot").catch(() => {});
     }
   }, [currentSlide, activeSlides.length]);
 
-  // Navigate slides with transition lock
+  // Clean up transition timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
+    };
+  }, []);
+
+  // Navigate slides with ref-based transition lock
   const navigate = useCallback(
     (direction: "next" | "prev") => {
-      if (transitioning) return;
+      if (transitionLockRef.current) return;
+
+      const idx = slideIndexRef.current;
 
       if (direction === "next") {
-        if (currentSlide >= activeSlides.length - 1) {
+        if (idx >= activeSlides.length - 1) {
           onComplete();
           return;
         }
-        setTransitioning(true);
-        setCurrentSlide((prev) => prev + 1);
+        transitionLockRef.current = true;
+        slideIndexRef.current = idx + 1;
+        setCurrentSlide(idx + 1);
       } else {
-        if (currentSlide <= 0) return;
-        setTransitioning(true);
-        setCurrentSlide((prev) => prev - 1);
+        if (idx <= 0) return;
+        transitionLockRef.current = true;
+        slideIndexRef.current = idx - 1;
+        setCurrentSlide(idx - 1);
       }
 
       // Unlock after transition
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
       if (reducedMotion) {
-        setTransitioning(false);
+        transitionLockRef.current = false;
       } else {
-        setTimeout(() => setTransitioning(false), 350);
+        transitionTimeoutRef.current = setTimeout(() => {
+          transitionLockRef.current = false;
+        }, 350);
       }
     },
-    [currentSlide, activeSlides.length, transitioning, onComplete, reducedMotion]
+    [activeSlides.length, onComplete, reducedMotion]
   );
 
   // Pointer events for navigation
@@ -452,7 +450,6 @@ export function WrappedStory({
 
   return (
     <div
-      ref={containerRef}
       className="fixed inset-0 z-50 flex flex-col select-none"
       onPointerUp={handlePointerUp}
       style={{ touchAction: "none" }}
@@ -467,7 +464,12 @@ export function WrappedStory({
             <div
               className="h-full rounded-full transition-all duration-300 ease-out"
               style={{
-                width: i < currentSlide ? "100%" : i === currentSlide ? "100%" : "0%",
+                width:
+                  i < currentSlide
+                    ? "100%"
+                    : i === currentSlide
+                      ? "100%"
+                      : "0%",
                 background:
                   i <= currentSlide
                     ? "linear-gradient(90deg, #10b981, #6366f1)"

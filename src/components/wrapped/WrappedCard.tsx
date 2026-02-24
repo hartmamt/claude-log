@@ -1,21 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { WrappedData } from "@/types";
-
-// --- Coding personality (same logic as WrappedStory) ---
-function getCodingArchetype(data: WrappedData): string {
-  const avgDuration =
-    data.totalSessions > 0 ? data.totalHours / data.totalSessions : 0;
-  const commitRatio =
-    data.totalSessions > 0 ? data.totalCommits / data.totalSessions : 0;
-
-  if (data.projects.length >= 4) return "The Polyglot";
-  if (commitRatio > 1.2) return "The Shipper";
-  if (data.totalSessions > 100 && avgDuration < 3) return "The Sprinter";
-  if (data.totalSessions < 50 && avgDuration > 6) return "The Deep Diver";
-  return "The Builder";
-}
+import { getCodingArchetype } from "./archetypes";
 
 type CardState = "ready" | "generating" | "done" | "error";
 
@@ -33,9 +20,21 @@ export function WrappedCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardState, setCardState] = useState<CardState>("ready");
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+  const generatingRef = useRef(false);
+  const generatedRef = useRef<{ blob: Blob; url: string } | null>(null);
+
+  // Clean up blob URL on unmount or when it changes
+  useEffect(() => {
+    blobUrlRef.current = blobUrl;
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, [blobUrl]);
 
   const generateCard = useCallback(async () => {
-    if (cardState === "generating" || !cardRef.current) return;
+    if (generatingRef.current || !cardRef.current) return null;
+    generatingRef.current = true;
     setCardState("generating");
 
     try {
@@ -48,35 +47,35 @@ export function WrappedCard({
       });
       const response = await fetch(dataUrl);
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
 
       // Revoke previous blob
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
       setBlobUrl(url);
       setCardState("done");
+      generatedRef.current = { blob, url };
       return { blob, url };
     } catch {
       setCardState("error");
       return null;
+    } finally {
+      generatingRef.current = false;
     }
-  }, [cardState, blobUrl]);
+  }, []);
 
   const handleDownload = useCallback(async () => {
-    const result = cardState === "done" && blobUrl
-      ? { blob: await fetch(blobUrl).then((r) => r.blob()), url: blobUrl }
-      : await generateCard();
+    const result = generatedRef.current ?? (await generateCard());
     if (!result) return;
 
     const a = document.createElement("a");
     a.href = result.url;
     a.download = "claude-code-wrapped.png";
     a.click();
-  }, [cardState, blobUrl, generateCard]);
+  }, [generateCard]);
 
   const handleShare = useCallback(async () => {
-    const result = cardState === "done" && blobUrl
-      ? { blob: await fetch(blobUrl).then((r) => r.blob()), url: blobUrl }
-      : await generateCard();
+    const result = generatedRef.current ?? (await generateCard());
     if (!result) return;
 
     const text = `I coded with Claude for ${data.totalHours.toLocaleString()} hours across ${data.totalSessions.toLocaleString()} sessions. Get your Wrapped: slashinsights.codes/wrapped`;
@@ -101,17 +100,18 @@ export function WrappedCard({
     } catch {
       // Silent fail
     }
-  }, [cardState, blobUrl, generateCard, data]);
-
-  // Clean up blob on unmount
-  // (intentionally not using useEffect cleanup since blobUrl updates via state)
+  }, [generateCard, data]);
 
   const personality = getCodingArchetype(data);
 
   const stats = [
     { value: data.totalMessages, label: "messages", color: "text-indigo-400" },
     { value: data.totalHours, label: "hours", color: "text-amber-400" },
-    { value: data.projects.length, label: "projects", color: "text-emerald-400" },
+    {
+      value: data.projects.length,
+      label: "projects",
+      color: "text-emerald-400",
+    },
   ].filter((s) => s.value > 0);
 
   return (

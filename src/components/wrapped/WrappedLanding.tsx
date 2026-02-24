@@ -19,9 +19,12 @@ export function WrappedLanding({
     if (!file) return;
     setError(null);
     setLoading(true);
-    const err = await onFile(file);
-    if (err) setError(err);
-    setLoading(false);
+    try {
+      const err = await onFile(file);
+      if (err) setError(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

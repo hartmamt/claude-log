@@ -41,9 +41,7 @@ export interface WrappedData {
   totalMessages: number;
   totalHours: number;
   totalCommits: number;
-  dateRange: { start: string; end: string };
   projects: WrappedProject[];
   topWorkflow: string | null;
-  topStrength: string | null;
   personality: string;
 }
