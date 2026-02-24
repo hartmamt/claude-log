@@ -55,6 +55,22 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* About blurb */}
+      <div className="border-t border-border pt-8 flex items-start gap-4">
+        <div className="space-y-2">
+          <h2 className="font-mono text-sm font-semibold text-foreground">
+            Built by{" "}
+            <Link href="/about" className="text-accent hover:underline">
+              Matt Hartman
+            </Link>
+          </h2>
+          <p className="text-text-muted text-sm leading-relaxed">
+            Director of Intelligent Systems at Monti, Inc. 20+ years in
+            enterprise architecture, IoT platforms, and product leadership.
+            Previously at P&amp;G and the University of Cincinnati.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

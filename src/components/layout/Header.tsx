@@ -22,6 +22,12 @@ export function Header() {
           >
             changelog
           </Link>
+          <Link
+            href="/about"
+            className="text-text-muted hover:text-foreground transition-colors"
+          >
+            about
+          </Link>
         </nav>
       </div>
     </header>
