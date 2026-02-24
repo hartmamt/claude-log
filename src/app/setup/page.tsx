@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Fork Your Own - claude_log",
+  title: "Fork Your Own - /insights",
   description:
     "Generate your own dev blog from your Claude Code usage data",
 };

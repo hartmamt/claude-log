@@ -2,6 +2,11 @@ import { getPostsIndex, getSiteStats } from "@/lib/data";
 import { PostCard } from "@/components/blog/PostCard";
 import { StatsBar } from "@/components/blog/StatsBar";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "/insights - Building in Public with Claude Code",
+};
 
 export default function HomePage() {
   const posts = getPostsIndex();
@@ -50,23 +55,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Fork CTA */}
-      <div className="card p-8 text-center">
-        <h3 className="font-mono font-bold text-foreground text-lg mb-2">
-          Make Your Own Dev Log
-        </h3>
-        <p className="text-text-muted text-sm mb-5 max-w-md mx-auto">
-          This site was generated from Claude Code&apos;s{" "}
-          <code className="font-mono text-accent text-xs">/insights</code> command.
-          Fork the repo and generate your own.
-        </p>
-        <Link
-          href="/setup"
-          className="inline-block px-6 py-2.5 bg-accent text-background font-mono font-semibold text-sm rounded-lg hover:bg-accent-dim transition-colors"
-        >
-          Get Started
-        </Link>
-      </div>
     </div>
   );
 }

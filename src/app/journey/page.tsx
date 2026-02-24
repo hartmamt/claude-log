@@ -3,7 +3,7 @@ import { getTimeline, getSiteStats } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Journey - claude_log",
+  title: "The Journey - /insights",
   description: "A chronological timeline of building with Claude Code",
 };
 

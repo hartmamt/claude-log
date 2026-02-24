@@ -6,7 +6,7 @@ export function Header() {
       <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 hover:opacity-80">
           <span className="font-mono text-accent font-bold text-base tracking-tight">
-            claude_log
+            /insights
           </span>
         </Link>
         <nav className="flex items-center gap-6 text-sm">
@@ -21,12 +21,6 @@ export function Header() {
             className="text-text-muted hover:text-foreground transition-colors"
           >
             journey
-          </Link>
-          <Link
-            href="/setup"
-            className="text-text-muted hover:text-foreground transition-colors"
-          >
-            fork it
           </Link>
         </nav>
       </div>
