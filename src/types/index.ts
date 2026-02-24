@@ -28,3 +28,20 @@ export interface ChangelogEntry {
   stats: { label: string; before: string; after: string }[];
   newContent: string[];
 }
+
+export interface WrappedProject {
+  name: string;
+  sessions: number;
+  description: string;
+}
+
+export interface WrappedData {
+  year: number;
+  totalSessions: number;
+  totalMessages: number;
+  totalHours: number;
+  totalCommits: number;
+  projects: WrappedProject[];
+  topWorkflow: string | null;
+  personality: string;
+}
