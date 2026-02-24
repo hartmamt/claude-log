@@ -4,6 +4,7 @@ export const colorMap: Record<string, string> = {
   green: "text-accent",
   red: "text-red",
   purple: "text-[#a855f7]",
+  secondary: "text-secondary",
 };
 
 export const iconMap: Record<string, string> = {
@@ -14,4 +15,6 @@ export const iconMap: Record<string, string> = {
   alert: "!!",
   zap: "//",
   telescope: "::",
+  factory: "##",
+  compass: "<>",
 };

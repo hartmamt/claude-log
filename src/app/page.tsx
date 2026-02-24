@@ -1,4 +1,4 @@
-import { getPostsIndex, getSiteStats } from "@/lib/data";
+import { getPostsIndex, getSiteStats, getPersonalPostsIndex } from "@/lib/data";
 import { PostCard } from "@/components/blog/PostCard";
 import { StatsBar } from "@/components/blog/StatsBar";
 import Link from "next/link";
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   const posts = getPostsIndex();
+  const personalPosts = getPersonalPostsIndex();
   const stats = getSiteStats();
 
   const featured = posts[0];
@@ -31,6 +32,20 @@ export default function HomePage() {
         </p>
         <StatsBar stats={stats} />
       </div>
+
+      {/* Personal essays */}
+      {personalPosts.length > 0 && (
+        <div className="space-y-5">
+          <h2 className="font-mono text-lg font-semibold text-foreground tracking-tight">
+            Featured Essays
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {personalPosts.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Featured Post */}
       <PostCard post={featured} featured />
