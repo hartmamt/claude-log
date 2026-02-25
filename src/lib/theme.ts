@@ -17,4 +17,5 @@ export const iconMap: Record<string, string> = {
   telescope: "::",
   factory: "##",
   compass: "<>",
+  brain: "~~",
 };

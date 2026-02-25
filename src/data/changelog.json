@@ -37,5 +37,49 @@
       "Project area: Marketing Site, Content & Video Production",
       "Project area: DevOps, Deployment & Infrastructure"
     ]
+  },
+  {
+    "date": "2026-02-25",
+    "label": "2 new workflows",
+    "stats": [
+      {
+        "label": "Sessions",
+        "before": "180",
+        "after": "178 (-2)"
+      },
+      {
+        "label": "Commits",
+        "before": "256",
+        "after": "264"
+      },
+      {
+        "label": "Hours",
+        "before": "974",
+        "after": "0"
+      },
+      {
+        "label": "File touches",
+        "before": "4,169",
+        "after": "0"
+      }
+    ],
+    "newContent": [
+      "New workflow: End-to-End Feature Lifecycle Management",
+      "New workflow: Obsidian Second Brain Construction",
+      "New friction area: Buggy Code Shipped Without Adequate Self-Testing",
+      "New friction area: Excessive Planning Without Producing Output",
+      "New friction area: Misunderstood Scope or Overclaimed Completion",
+      "New friction example in Buggy Code Shipped Without Adequate Self-Testing",
+      "New friction example in Excessive Planning Without Producing Output",
+      "New friction example in Excessive Planning Without Producing Output",
+      "New friction example in Misunderstood Scope or Overclaimed Completion",
+      "New friction example in Misunderstood Scope or Overclaimed Completion",
+      "New project area: Obsidian Second Brain & Knowledge Management",
+      "New project area: Connector & Integration Development",
+      "New project area: Marketing Site & Content Creation",
+      "New project area: DevOps, Git Operations & Code Quality",
+      "New tip: Front-load context to avoid wrong_approach (51 incidents)",
+      "New tip: Demand working code, not plans"
+    ]
   }
 ]

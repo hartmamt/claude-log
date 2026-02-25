@@ -87,20 +87,37 @@ function anonymize(text: string): string {
 function secondToFirstPerson(text: string): string {
   let result = text;
 
-  // Whole-word replacements (case-sensitive for common patterns)
+  // Order matters — more specific patterns must come before general ones.
   const replacements: [RegExp, string][] = [
-    // "You are" → "I'm" / "I am"
+    // Contractions first (before general "You" rules)
+    [/\bYou're\b/g, "I'm"],
+    [/\byou're\b/g, "I'm"],
+    [/\bYou've\b/g, "I've"],
+    [/\byou've\b/g, "I've"],
+    [/\bYou'll\b/g, "I'll"],
+    [/\byou'll\b/g, "I'll"],
+    [/\bYou'd\b/g, "I'd"],
+    [/\byou'd\b/g, "I'd"],
+
+    // "You are" → "I'm"
     [/\bYou are\b/g, "I'm"],
     [/\byou are\b/g, "I'm"],
+
     // "Your" → "My"
     [/\bYour\b/g, "My"],
     [/\byour\b/g, "my"],
+
     // "yourself" → "myself"
     [/\byourself\b/g, "myself"],
     [/\bYourself\b/g, "Myself"],
-    // Object-position "you" → "me" (after prepositions)
+
+    // Gerund phrases: "shows you thinking" → "shows me thinking"
+    [/\b(shows|sees|finds|catches|has|leaves|keeps|gets|lets|makes|watches) you (\w+ing)\b/gi, "$1 me $2"],
+
+    // Object-position "you" → "me" (after prepositions and verbs that take objects)
     [/\b(forcing|asking|telling|giving|showing|helping|letting|making|costing) you\b/gi, "$1 me"],
     [/\b(for|to|from|with|about|at|by|into|onto|upon) you\b/gi, "$1 me"],
+
     // Subject-position "You" → "I" (everything else)
     [/\bYou\b/g, "I"],
     [/\byou\b/g, "I"],
