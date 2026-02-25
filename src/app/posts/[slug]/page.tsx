@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPostSlugs, getPost, getPostsIndex } from "@/lib/data";
 import { PostContent } from "@/components/blog/PostContent";
+import { CopyMarkdownButton } from "@/components/blog/CopyMarkdownButton";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { colorMap, iconMap } from "@/lib/theme";
 
@@ -72,6 +73,14 @@ export default async function PostPage({
             <p className="text-text-muted text-base leading-relaxed">
               {post.subtitle}
             </p>
+
+            <div className="mt-4">
+              <CopyMarkdownButton
+                title={post.title}
+                subtitle={post.subtitle}
+                content={post.content}
+              />
+            </div>
 
             {/* Stats row */}
             {post.stats && post.stats.length > 0 && (
