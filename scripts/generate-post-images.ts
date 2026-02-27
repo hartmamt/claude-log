@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as https from "https";
 
 const POSTS_DIR = path.join(process.cwd(), "src", "data", "posts");
 const PERSONAL_POSTS_DIR = path.join(
@@ -11,8 +12,7 @@ const PERSONAL_POSTS_DIR = path.join(
 const OG_DIR = path.join(process.cwd(), "public", "og");
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-2.0-flash-preview-image-generation";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const MODEL = "gemini-3.1-flash-image-preview";
 
 interface PostMeta {
   slug: string;
@@ -60,29 +60,40 @@ function buildPrompt(post: PostMeta): string {
   ].join("\n");
 }
 
+function httpsPost(url: string, body: string): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, { method: "POST", headers: { "Content-Type": "application/json" }, timeout: 120_000 }, (res) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => resolve({ status: res.statusCode || 0, body: Buffer.concat(chunks).toString() }));
+    });
+    req.on("error", reject);
+    req.on("timeout", () => { req.destroy(); reject(new Error("Request timed out")); });
+    req.write(body);
+    req.end();
+  });
+}
+
 async function generateImage(post: PostMeta): Promise<Buffer | null> {
   const prompt = buildPrompt(post);
 
-  const body = {
+  const body = JSON.stringify({
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       responseModalities: ["IMAGE"],
     },
-  };
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    console.error(`  API error for ${post.slug}: ${res.status} ${text}`);
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+  const res = await httpsPost(url, body);
+
+  if (res.status !== 200) {
+    console.error(`  API error for ${post.slug}: ${res.status} ${res.body}`);
     return null;
   }
 
-  const json = await res.json();
+  const json = JSON.parse(res.body);
   const parts = json.candidates?.[0]?.content?.parts;
   if (!parts) {
     console.error(`  No candidates in response for ${post.slug}`);
