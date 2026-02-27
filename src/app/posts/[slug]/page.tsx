@@ -1,10 +1,17 @@
+import fs from "fs";
+import path from "path";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAllPostSlugs, getPost, getPostsIndex } from "@/lib/data";
 import { PostContent } from "@/components/blog/PostContent";
 import { CopyMarkdownButton } from "@/components/blog/CopyMarkdownButton";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { colorMap, iconMap } from "@/lib/theme";
+
+function hasOgImage(slug: string): boolean {
+  return fs.existsSync(path.join(process.cwd(), "public", "og", `${slug}.png`));
+}
 
 export function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
@@ -17,9 +24,21 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const post = getPost(slug);
+  const ogImage = hasOgImage(slug) ? `/og/${slug}.png` : "/og.png";
   return {
     title: post ? `${post.title} - /insights` : "Post - /insights",
     description: post?.subtitle,
+    openGraph: {
+      title: post?.title,
+      description: post?.subtitle,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post?.title,
+      description: post?.subtitle,
+      images: [ogImage],
+    },
   };
 }
 
@@ -41,6 +60,7 @@ export default async function PostPage({
 
   const color = colorMap[post.categoryColor] || "text-accent";
   const icon = iconMap[post.icon] || ">>";
+  const showHeaderImage = hasOgImage(slug);
 
   return (
     <>
@@ -56,6 +76,20 @@ export default async function PostPage({
         </div>
 
         <article>
+          {/* Header image */}
+          {showHeaderImage && (
+            <div className="mb-8 -mx-6 sm:mx-0">
+              <Image
+                src={`/og/${slug}.png`}
+                alt=""
+                width={1200}
+                height={630}
+                priority
+                className="w-full rounded-lg border border-border"
+              />
+            </div>
+          )}
+
           {/* Post header */}
           <div className="mb-10 pb-8 border-b border-border">
             <div className="flex items-center gap-3 mb-4 text-xs font-mono">
