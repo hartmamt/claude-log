@@ -5,7 +5,13 @@ import { track } from "@vercel/analytics/react";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
-export function SubscribeForm({ compact = false }: { compact?: boolean }) {
+export function SubscribeForm({
+  compact = false,
+  onSuccess,
+}: {
+  compact?: boolean;
+  onSuccess?: () => void;
+}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -33,6 +39,7 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
       track("Subscribe Submitted", { page: window.location.pathname });
       setState("success");
       setEmail("");
+      onSuccess?.();
     } catch (err) {
       setState("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");

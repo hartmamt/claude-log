@@ -13,6 +13,7 @@ function StatusContent() {
     if (confirmed === "true" && !tracked.current) {
       tracked.current = true;
       track("Subscribe Confirmed");
+      localStorage.setItem("insights_subscriber_confirmed", "true");
     }
   }, [confirmed]);
 

@@ -284,3 +284,23 @@ body {
   color: var(--color-text-muted);
 }
 
+/* Metered reading gate */
+.meter-gated-content > .markdown-content > *:nth-child(n + 4) {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.meter-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--color-background) 30%
+  );
+  padding: 8rem 1.5rem 3rem;
+}
+
