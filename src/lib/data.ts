@@ -36,6 +36,10 @@ export function getPersonalPostsIndex(): Omit<BlogPost, "content">[] {
 }
 
 export function getPost(slug: string): BlogPost | null {
+  if (!slug || slug.includes("/") || slug.includes("\\") || slug.includes("..")) {
+    return null;
+  }
+
   // Check generated posts first
   try {
     const filePath = path.join(

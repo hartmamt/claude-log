@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,6 +33,16 @@ export const metadata: Metadata = {
       "Notes on building with AI — real patterns from real projects",
     images: ["/og.png"],
     creator: "@matthew_hartman",
+  },
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        {
+          url: `${SITE_URL}/feed.xml`,
+          title: "insights.codes RSS Feed",
+        },
+      ],
+    },
   },
 };
 

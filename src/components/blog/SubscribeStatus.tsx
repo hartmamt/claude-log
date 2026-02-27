@@ -1,12 +1,22 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
+import { track } from "@vercel/analytics/react";
 
 function StatusContent() {
   const params = useSearchParams();
+  const confirmed = params.get("confirmed");
+  const tracked = useRef(false);
 
-  if (params.get("confirmed") === "true") {
+  useEffect(() => {
+    if (confirmed === "true" && !tracked.current) {
+      tracked.current = true;
+      track("Subscribe Confirmed");
+    }
+  }, [confirmed]);
+
+  if (confirmed === "true") {
     return (
       <div className="p-4 border border-accent/30 bg-accent/5 rounded-lg">
         <p className="text-accent text-sm font-mono">
