@@ -27,8 +27,8 @@ export function getPersonalPosts(): BlogPost[] {
     const raw = fs.readFileSync(path.join(PERSONAL_POSTS_DIR, file), "utf-8");
     return JSON.parse(raw) as BlogPost;
   });
-  // Newest first
-  return posts.sort((a, b) => b.date.localeCompare(a.date));
+  // Newest first, then reverse-alpha slug for same-date tiebreaker
+  return posts.sort((a, b) => b.date.localeCompare(a.date) || b.slug.localeCompare(a.slug));
 }
 
 export function getPersonalPostsIndex(): Omit<BlogPost, "content">[] {
