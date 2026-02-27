@@ -14,15 +14,16 @@ const OG_DIR = path.join(process.cwd(), "public", "og");
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const MODEL = "gemini-3.1-flash-image-preview";
 
-interface PostMeta {
+interface PostData {
   slug: string;
   title: string;
   subtitle: string;
   category: string;
+  content: string;
 }
 
-function loadAllPosts(): PostMeta[] {
-  const posts: PostMeta[] = [];
+function loadAllPosts(): PostData[] {
+  const posts: PostData[] = [];
 
   for (const dir of [POSTS_DIR, PERSONAL_POSTS_DIR]) {
     if (!fs.existsSync(dir)) continue;
@@ -35,6 +36,7 @@ function loadAllPosts(): PostMeta[] {
         title: data.title,
         subtitle: data.subtitle,
         category: data.category,
+        content: data.content,
       });
     }
   }
@@ -42,21 +44,52 @@ function loadAllPosts(): PostMeta[] {
   return posts;
 }
 
-function buildPrompt(post: PostMeta): string {
+/** Pull out the first ~500 chars of plain text from markdown content */
+function extractExcerpt(content: string, maxLen = 500): string {
+  return content
+    .replace(/:::[\s\S]*?:::/g, "") // remove callouts
+    .replace(/```[\s\S]*?```/g, "") // remove code blocks
+    .replace(/#{1,6}\s/g, "")       // remove headings
+    .replace(/[*_~`]/g, "")         // remove formatting
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links → text
+    .replace(/\n{2,}/g, " ")
+    .trim()
+    .slice(0, maxLen);
+}
+
+function buildPrompt(post: PostData): string {
+  const excerpt = extractExcerpt(post.content);
+
   return [
-    `Generate a premium blog header image for an article titled "${post.title}" in the "${post.category}" category.`,
-    `The article is about: ${post.subtitle}`,
+    `Create an image for a developer blog article header.`,
     "",
-    "Style requirements:",
-    "- Deep dark background (#09090b to #111113)",
-    "- Subtle glowing accents in emerald green (#10b981), indigo (#6366f1), or amber (#f59e0b)",
-    "- Abstract geometric patterns or data visualizations related to the post's theme",
-    "- Soft depth-of-field bokeh effects",
-    "- Subtle grid or terminal textures",
-    "- NO text whatsoever in the image",
-    "- Think: Vercel's blog headers meets a moody code editor aesthetic",
-    "- Premium, polished, developer-oriented feel",
-    "- 1200x630 pixel aspect ratio (wide banner format)",
+    `Article: "${post.title}"`,
+    `Summary: ${post.subtitle}`,
+    `Key content: ${excerpt}`,
+    "",
+    "ART STYLE — isometric miniature diorama:",
+    "- A tiny, detailed 3D isometric scene floating in a pure dark void (#09090b background)",
+    "- Like a glowing miniature world or desk scene viewed from above at a 30-degree angle",
+    "- Soft, warm volumetric lighting from within the scene — like it's self-illuminated",
+    "- Color palette restricted to: emerald green (#10b981) glow, indigo (#6366f1) accents, warm amber (#f59e0b) light sources, against deep blacks",
+    "- Tilt-shift miniature effect — everything looks like a tiny model",
+    "- Clean, slightly stylized 3D rendering — not photorealistic, not cartoonish",
+    "- Think: tiny glowing worlds by Zhelong Xu or isometric art by Mohamed Chahin",
+    "",
+    "SCENE (specific to THIS article — read the content carefully):",
+    "- Build a miniature scene that captures the article's core theme as a physical metaphor",
+    "- The scene should tell a story at a glance — someone should understand the vibe immediately",
+    "- Include small, delightful details that reward closer inspection",
+    "- Examples of scene-thinking (DO NOT use these literally, create something unique for this article):",
+    "  - Article about AI workflows → tiny desk with dual monitors, one showing code, a robot arm handing a coffee cup to a human hand",
+    "  - Article about things going wrong → a beautiful miniature server room with one rack on fire, tiny fire extinguisher nearby",
+    "  - Article about building fast → a tiny workshop with a half-assembled rocket on the workbench, tools scattered around",
+    "",
+    "RULES:",
+    "- NO text, words, letters, numbers, labels, or UI anywhere in the image",
+    "- The scene should be centered with generous dark space around it",
+    "- Wide 16:9 aspect ratio (banner format)",
+    "- Keep the dark background truly dark — the scene should glow against void",
   ].join("\n");
 }
 
@@ -74,7 +107,7 @@ function httpsPost(url: string, body: string): Promise<{ status: number; body: s
   });
 }
 
-async function generateImage(post: PostMeta): Promise<Buffer | null> {
+async function generateImage(post: PostData): Promise<Buffer | null> {
   const prompt = buildPrompt(post);
 
   const body = JSON.stringify({
