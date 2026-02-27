@@ -4,9 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAllPostSlugs, getPost, getPostsIndex } from "@/lib/data";
+import { SITE_URL } from "@/lib/constants";
 import { PostContent } from "@/components/blog/PostContent";
 import { CopyMarkdownButton } from "@/components/blog/CopyMarkdownButton";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
+import { ShareButtons } from "@/components/blog/ShareButtons";
+import { SubscribeForm } from "@/components/blog/SubscribeForm";
 import { colorMap, iconMap } from "@/lib/theme";
 
 function hasOgImage(slug: string): boolean {
@@ -31,13 +34,30 @@ export async function generateMetadata({
     openGraph: {
       title: post?.title,
       description: post?.subtitle,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
+      type: "article",
+      url: `${SITE_URL}/posts/${slug}`,
+      siteName: "insights.codes",
+      publishedTime: post?.date,
+      authors: ["Matt Hartman"],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post?.title || "insights.codes",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: post?.title,
       description: post?.subtitle,
       images: [ogImage],
+      creator: "@matthew_hartman",
+      site: "@matthew_hartman",
+    },
+    alternates: {
+      canonical: `${SITE_URL}/posts/${slug}`,
     },
   };
 }
@@ -108,11 +128,16 @@ export default async function PostPage({
               {post.subtitle}
             </p>
 
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-4">
               <CopyMarkdownButton
                 title={post.title}
                 subtitle={post.subtitle}
                 content={post.content}
+              />
+              <ShareButtons
+                title={post.title}
+                slug={slug}
+                url={`${SITE_URL}/posts/${slug}`}
               />
             </div>
 
@@ -162,6 +187,26 @@ export default async function PostPage({
           {/* Post content */}
           <PostContent content={post.content} />
         </article>
+
+        {/* Bottom share */}
+        <div className="mt-10 pt-6 border-t border-border">
+          <ShareButtons
+            title={post.title}
+            slug={slug}
+            url={`${SITE_URL}/posts/${slug}`}
+          />
+        </div>
+
+        {/* Subscribe CTA */}
+        <div className="my-10 p-6 border border-border rounded-lg border-l-[3px] border-l-accent" style={{ backgroundColor: "rgba(16, 185, 129, 0.1)" }}>
+          <div className="font-mono text-[10px] text-accent font-semibold uppercase tracking-wider mb-2">
+            enjoyed this?
+          </div>
+          <p className="text-sm text-text-muted mb-4">
+            Get posts like this delivered to your inbox. No spam, no algorithms.
+          </p>
+          <SubscribeForm compact />
+        </div>
 
         {/* Navigation */}
         <div className="flex justify-between mt-10 gap-4">

@@ -33,6 +33,16 @@ export const metadata: Metadata = {
     images: ["/og.png"],
     creator: "@matthew_hartman",
   },
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        {
+          url: "https://insights.codes/feed.xml",
+          title: "insights.codes RSS Feed",
+        },
+      ],
+    },
+  },
 };
 
 export default function RootLayout({

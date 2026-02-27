@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics/react";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -28,6 +29,8 @@ export function SubscribeForm({ compact = false }: { compact?: boolean }) {
         throw new Error(data.error || "Something went wrong");
       }
 
+      // SECURITY: Do NOT include email or PII in analytics events
+      track("Subscribe Submitted", { page: window.location.pathname });
       setState("success");
       setEmail("");
     } catch (err) {
