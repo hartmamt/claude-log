@@ -1,6 +1,8 @@
 import { getPostsIndex, getPersonalPostsIndex } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 
+export const dynamic = "force-static";
+
 function escapeXml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -25,8 +27,8 @@ export async function GET() {
       (post) => `
     <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${SITE_URL}/posts/${escapeXml(post.slug)}</link>
-      <guid isPermaLink="true">${SITE_URL}/posts/${escapeXml(post.slug)}</guid>
+      <link>${escapeXml(SITE_URL)}/posts/${escapeXml(post.slug)}</link>
+      <guid isPermaLink="true">${escapeXml(SITE_URL)}/posts/${escapeXml(post.slug)}</guid>
       <description>${escapeXml(post.subtitle)}</description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
     </item>`
@@ -37,11 +39,11 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>insights.codes</title>
-    <link>${SITE_URL}</link>
+    <link>${escapeXml(SITE_URL)}</link>
     <description>Notes on building with AI — real patterns from real projects</description>
     <language>en-us</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
-    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${escapeXml(SITE_URL)}/feed.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>
 </rss>`;

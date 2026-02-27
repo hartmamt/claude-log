@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     types: {
       "application/rss+xml": [
         {
-          url: "https://insights.codes/feed.xml",
+          url: `${SITE_URL}/feed.xml`,
           title: "insights.codes RSS Feed",
         },
       ],

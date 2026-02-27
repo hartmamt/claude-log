@@ -27,6 +27,7 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const post = getPost(slug);
+  if (!post) return { title: "Post Not Found - insights.codes" };
   const ogImage = hasOgImage(slug) ? `/og/${slug}.png` : "/og.png";
   return {
     title: post ? `${post.title} - insights.codes` : "Post - insights.codes",
@@ -198,7 +199,7 @@ export default async function PostPage({
         </div>
 
         {/* Subscribe CTA */}
-        <div className="my-10 p-6 border border-border rounded-lg border-l-[3px] border-l-accent" style={{ backgroundColor: "rgba(16, 185, 129, 0.1)" }}>
+        <div className="my-10 p-6 border border-border rounded-lg border-l-[3px] border-l-accent bg-accent/10">
           <div className="font-mono text-[10px] text-accent font-semibold uppercase tracking-wider mb-2">
             enjoyed this?
           </div>

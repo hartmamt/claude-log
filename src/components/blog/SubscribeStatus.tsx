@@ -11,10 +11,7 @@ function StatusContent() {
 
   useEffect(() => {
     if (confirmed === "true" && !tracked.current) {
-      const storageKey = "analytics:subscribe-confirmed";
-      if (typeof window !== "undefined" && sessionStorage.getItem(storageKey)) return;
       tracked.current = true;
-      sessionStorage.setItem(storageKey, "1");
       track("Subscribe Confirmed");
     }
   }, [confirmed]);

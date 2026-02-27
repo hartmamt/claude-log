@@ -59,9 +59,15 @@ export function ShareButtons({ title, slug, url }: ShareButtonsProps) {
           ) : (
             <button
               onClick={() => {
-                navigator.clipboard.writeText(url);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
+                navigator.clipboard.writeText(url).then(
+                  () => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  },
+                  () => {
+                    // Clipboard access denied -- silently fail
+                  }
+                );
                 track("Share Clicked", { platform: "copy", slug });
               }}
               className="text-text-muted hover:text-accent transition-colors cursor-pointer"
