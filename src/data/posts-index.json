@@ -2,32 +2,32 @@
   {
     "slug": "how-i-use-claude-code",
     "title": "What It's Actually Like to Use Claude Code for Everything",
-    "subtitle": "178 sessions, 264 commits, 974 hours — an honest account of treating AI as an engineering partner",
-    "date": "2026-02-25",
+    "subtitle": "338 sessions, 256 commits, 924 hours — an honest account of treating AI as an engineering partner",
+    "date": "2026-02-27",
     "category": "Workflow",
     "categoryColor": "cyan",
     "icon": "terminal",
-    "readingTime": "6 min read",
+    "readingTime": "5 min read",
     "highlights": [
-      "178 sessions",
-      "264 commits",
+      "338 sessions",
+      "256 commits",
       "4,169 file touches"
     ],
     "keyTakeaway": "The speed of the feedback loop is everything. Reduce the time between 'that's wrong' and 'now it's right.'",
     "stats": [
       {
         "label": "Sessions",
-        "value": "178",
+        "value": "338",
         "color": "green"
       },
       {
         "label": "Commits",
-        "value": "264",
+        "value": "256",
         "color": "amber"
       },
       {
         "label": "Hours",
-        "value": "974",
+        "value": "924",
         "color": "cyan"
       }
     ]
@@ -36,12 +36,15 @@
     "slug": "what-works",
     "title": "The Workflows That Actually Work",
     "subtitle": "Concrete patterns for shipping features, fixing bugs, and running code reviews with Claude Code",
-    "date": "2026-02-25",
+    "date": "2026-02-27",
     "category": "Wins",
     "categoryColor": "green",
     "icon": "rocket",
-    "readingTime": "4 min read",
+    "readingTime": "5 min read",
     "highlights": [
+      "Obsidian Vault as Knowledge Operating System",
+      "Full Feature Lifecycles in Single Sessions",
+      "Parallel Sub-Agent Orchestration at Scale",
       "End-to-End Feature Lifecycle Management",
       "Obsidian Second Brain Construction",
       "Parallel Sub-Agent Architecture Audits",
@@ -52,12 +55,12 @@
     "stats": [
       {
         "label": "Commits",
-        "value": "264",
+        "value": "256",
         "color": "green"
       },
       {
         "label": "Workflows",
-        "value": "5",
+        "value": "8",
         "color": "cyan"
       }
     ]
@@ -65,19 +68,22 @@
   {
     "slug": "where-things-go-wrong",
     "title": "Where Things Go Wrong",
-    "subtitle": "An honest friction log from 178 sessions — buggy code, planning paralysis, and deployment gotchas",
-    "date": "2026-02-25",
+    "subtitle": "An honest friction log from 338 sessions — buggy code, planning paralysis, and deployment gotchas",
+    "date": "2026-02-27",
     "category": "Lessons",
     "categoryColor": "red",
     "icon": "alert",
-    "readingTime": "5 min read",
+    "readingTime": "7 min read",
     "highlights": [
       "Buggy Code Shipped Without Adequate Verification",
       "Excessive Planning and Exploration Without Producing Output",
       "Git and Deployment Workflow Missteps",
       "Buggy Code Shipped Without Adequate Self-Testing",
       "Excessive Planning Without Producing Output",
-      "Misunderstood Scope or Overclaimed Completion"
+      "Misunderstood Scope or Overclaimed Completion",
+      "Over-Scoping and Unsolicited Expansion",
+      "Wrong Assumptions About Data and Codebase",
+      "Excessive Planning Instead of Executing"
     ],
     "keyTakeaway": "The solution to buggy AI code isn't more careful prompting — it's faster verification loops.",
     "stats": [
@@ -93,7 +99,7 @@
       },
       {
         "label": "Sessions",
-        "value": "178",
+        "value": "338",
         "color": "green"
       }
     ]
@@ -101,12 +107,12 @@
   {
     "slug": "power-user-tips",
     "title": "Claude Code Power User Guide",
-    "subtitle": "Battle-tested prompts, CLAUDE.md rules, and workflow tricks from 178 sessions",
-    "date": "2026-02-25",
+    "subtitle": "Battle-tested prompts, CLAUDE.md rules, and workflow tricks from 338 sessions",
+    "date": "2026-02-27",
     "category": "Tips",
     "categoryColor": "green",
     "icon": "zap",
-    "readingTime": "10 min read",
+    "readingTime": "13 min read",
     "highlights": [
       "Custom Skills",
       "Hooks",
@@ -119,16 +125,16 @@
   },
   {
     "slug": "the-story",
-    "title": "The Best Story From 974+ Hours of AI Coding",
+    "title": "The Best Story From 924+ Hours of AI Coding",
     "subtitle": "User asked Claude to build a dev blog from their Claude Code session data — then realized it was about to publish all their raw transcripts for the world to see",
-    "date": "2026-02-25",
+    "date": "2026-02-27",
     "category": "Story",
     "categoryColor": "cyan",
     "icon": "moon",
     "readingTime": "3 min read",
     "highlights": [
-      "178 sessions analyzed",
-      "974+ hours",
+      "338 sessions analyzed",
+      "924+ hours",
       "Real patterns"
     ],
     "keyTakeaway": "The interruption instinct is learned. Don't wait patiently — interrupt within 2 minutes if you don't see code being written."
@@ -137,12 +143,15 @@
     "slug": "whats-next",
     "title": "Where AI Coding Is Actually Heading",
     "subtitle": "Parallel agents, self-healing deploys, and autonomous development pipelines — based on patterns already working",
-    "date": "2026-02-25",
+    "date": "2026-02-27",
     "category": "Future",
     "categoryColor": "cyan",
     "icon": "telescope",
-    "readingTime": "10 min read",
+    "readingTime": "14 min read",
     "highlights": [
+      "Autonomous Obsidian Vault Agent Pipeline",
+      "Test-Driven Autonomous Feature Implementation",
+      "Parallel Deploy-and-Verify Release Automation",
       "Autonomous Bug-Fix-to-PR Pipeline",
       "Parallel Agent Architecture Audits",
       "Self-Healing Deployment with Automated Rollback",
@@ -154,19 +163,19 @@
   },
   {
     "slug": "the-projects",
-    "title": "5 Projects, 178 Sessions: What I Built",
+    "title": "5 Projects, 338 Sessions: What I Built",
     "subtitle": "From SaaS platforms to infrastructure to marketing sites — what Claude handles well and where it struggles",
-    "date": "2026-02-25",
+    "date": "2026-02-27",
     "category": "Projects",
     "categoryColor": "amber",
     "icon": "folder",
-    "readingTime": "4 min read",
+    "readingTime": "3 min read",
     "highlights": [
-      "the (72)",
-      "Obsidian (28)",
-      "Connector (22)",
-      "Marketing (20)",
-      "DevOps, (36)"
+      "Obsidian (18)",
+      "the (25)",
+      "Insurance (5)",
+      "Enterprise (8)",
+      "Remotion (3)"
     ],
     "keyTakeaway": "TypeScript is Claude's sweet spot. The type system acts as a guardrail that catches mistakes early. Infrastructure work needs more hand-holding.",
     "stats": [
@@ -177,7 +186,7 @@
       },
       {
         "label": "Sessions",
-        "value": "178",
+        "value": "338",
         "color": "green"
       },
       {

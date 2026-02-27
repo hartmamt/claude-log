@@ -1,0 +1,24 @@
+{
+  "slug": "the-numbers",
+  "title": "I Run Multiple Claudes at Once (and Other Surprises From My Data)",
+  "subtitle": "81 parallel sessions. A 72-second thinking loop. 1,140 messages after dark. The numbers behind 924 hours.",
+  "date": "2026-02-27",
+  "category": "Essay",
+  "categoryColor": "purple",
+  "icon": "compass",
+  "readingTime": "3 min read",
+  "content": "The insights report tells you what works and what breaks. The raw numbers tell you something weirder: how you actually behave.\n\n## I Multi-Claude\n\n**81 overlap events.** 107 sessions involved. 13% of all messages sent while another session was already running.\n\nI didn't plan this. Claude takes a minute to read files and run builds. I get bored. I open another terminal. Over 338 sessions, that restlessness became a workflow — feature implementation in one window, vault updates in another, code review in a third.\n\nI treat Claude sessions like browser tabs. One isn't enough.\n\n## I Code at Night\n\n| Time | Messages |\n|------|----------|\n| Evening (6pm-midnight) | **1,140** |\n| Morning (6am-noon) | 851 |\n| Afternoon (noon-6pm) | 779 |\n| Night (midnight-6am) | 14 |\n\nThe deep work happens after hours. No meetings, no Slack, just iteration. The 14 midnight messages mean I'm at least sleeping.\n\n## I Think for 72 Seconds\n\nMedian response time: **72.2 seconds.** That's how long I stare at Claude's output before typing something.\n\nThe distribution reveals three modes:\n- **Under 10 seconds** (180 responses) — \"no, wrong file\" / \"push it\" / \"the build failed\"\n- **30 seconds to 2 minutes** (572 responses) — the core loop: read output, evaluate, redirect\n- **15+ minutes** (127 responses) — I walked away\n\nThe productive sweet spot is that middle band. Claude produces, I evaluate in a minute, I course-correct. Rinse, repeat.\n\n## I Fix More Than I Build\n\n| Goal | Sessions |\n|------|----------|\n| Bug Fix | **42** |\n| Git Operations | 32 |\n| Feature Implementation | 28 |\n| Deployment | 25 |\n\nBug fix is #1. Not features. Not deployment. *Fixing things.*\n\nFeatures come in focused bursts. Bugs arrive constantly. And bug fixes are where Claude's speed advantage is sharpest — describe the problem, Claude reads the code, proposes a fix, I verify. Two minutes.\n\nGit at #2 means I've outsourced my entire git workflow. Cherry-picks, PRs, rebases — Claude does them all.\n\n## 323 Failures Per 338 Sessions\n\nNearly one command failure per session. Sounds terrible. It's actually the build-test-fix loop working correctly — Claude writes code, runs the build, it fails, Claude reads the error, fixes it. That \"failure\" is a feature.\n\nOnly 6 times across hundreds of sessions did I reject a destructive action. I trust this thing more than the error count suggests.\n\n## 2 Quick Questions Out of 338 Sessions\n\nI almost never ask Claude to explain something. Every session is a work session. \"Implement the provider, hook it up, fix the bug.\" Not \"how does this work?\"\n\nMulti-task sessions (86) beat single-task (60). I stack work. It causes more errors. I do it anyway because the throughput is worth it.\n\n## TypeScript 38:1\n\nTypeScript: 4,139 file touches. JavaScript: 110. That's a **38:1 ratio.** The JS touches are probably config files.\n\nMarkdown at 1,500 is the Obsidian vault work — a full third of my TypeScript volume, built entirely with a coding tool.\n\n## The Headline Number\n\n81 multi-clauding events. You don't plan that. It's what happens when an AI tool stops being a thing you use and starts being a thing you *assume is available.* Like electricity. You don't think about turning it on — you just expect it's there when you reach for it.",
+  "highlights": [
+    "81 multi-claude events",
+    "72s thinking loop",
+    "1,140 evening messages",
+    "Bug fix > features",
+    "38:1 TS:JS"
+  ],
+  "keyTakeaway": "81 multi-clauding events. You don't plan that. It's what happens when an AI tool stops being a thing you use and starts being a thing you assume is available.",
+  "stats": [
+    { "label": "Parallel Events", "value": "81", "color": "purple" },
+    { "label": "Think Time", "value": "72s", "color": "cyan" },
+    { "label": "Evening Msgs", "value": "1,140", "color": "amber" }
+  ]
+}

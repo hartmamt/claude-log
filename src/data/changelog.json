@@ -81,5 +81,41 @@
       "New tip: Front-load context to avoid wrong_approach (51 incidents)",
       "New tip: Demand working code, not plans"
     ]
+  },
+  {
+    "date": "2026-02-27",
+    "label": "3 new workflows",
+    "stats": [
+      {
+        "label": "Sessions",
+        "before": "178",
+        "after": "59 (-119)"
+      },
+      {
+        "label": "Commits",
+        "before": "264",
+        "after": "256"
+      }
+    ],
+    "newContent": [
+      "New workflow: Obsidian Vault as Knowledge Operating System",
+      "New workflow: Full Feature Lifecycles in Single Sessions",
+      "New workflow: Parallel Sub-Agent Orchestration at Scale",
+      "New friction area: Over-Scoping and Unsolicited Expansion",
+      "New friction area: Wrong Assumptions About Data and Codebase",
+      "New friction area: Excessive Planning Instead of Executing",
+      "New friction example in Over-Scoping and Unsolicited Expansion",
+      "New friction example in Over-Scoping and Unsolicited Expansion",
+      "New friction example in Wrong Assumptions About Data and Codebase",
+      "New friction example in Wrong Assumptions About Data and Codebase",
+      "New friction example in Excessive Planning Instead of Executing",
+      "New friction example in Excessive Planning Instead of Executing",
+      "New project area: Obsidian Knowledge Vault / Second Brain",
+      "New project area: Insurance Marketing Website",
+      "New project area: Enterprise Integration & Automation Projects",
+      "New project area: Remotion Video & Media Production",
+      "New tip: Front-load vault conventions to eliminate correction loops",
+      "New tip: Verify data assumptions before implementing features"
+    ]
   }
 ]

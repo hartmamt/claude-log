@@ -23,10 +23,12 @@ export function getPostsIndex(): Omit<BlogPost, "content">[] {
 export function getPersonalPosts(): BlogPost[] {
   if (!fs.existsSync(PERSONAL_POSTS_DIR)) return [];
   const files = fs.readdirSync(PERSONAL_POSTS_DIR).filter((f) => f.endsWith(".json")).sort();
-  return files.map((file) => {
+  const posts = files.map((file) => {
     const raw = fs.readFileSync(path.join(PERSONAL_POSTS_DIR, file), "utf-8");
     return JSON.parse(raw) as BlogPost;
   });
+  // Newest first
+  return posts.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getPersonalPostsIndex(): Omit<BlogPost, "content">[] {

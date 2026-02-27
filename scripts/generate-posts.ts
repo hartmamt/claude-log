@@ -62,12 +62,21 @@ const ARCHIVE_DIR = path.join(OUTPUT_DIR, "insights-archive");
 // Add entries here when /insights surfaces new names you don't want public.
 
 const ANONYMIZE_RULES: [RegExp, string][] = [
-  // Product names → generic descriptions
+  // Contextual product name rules FIRST (before general replacement)
+  [/an ActionTree/gi, "a platform"],
+  [/for ActionTree's/gi, "for the platform's"],
+  // General product names → generic descriptions
   [/ActionTree/gi, "the platform"],
   [/Anchor Fitness/gi, "a client"],
   [/StreamFit/gi, "a third-party service"],
-  // Keep these generic so they read naturally in prose
-  [/for ActionTree's/gi, "for the platform's"],
+  // Enterprise vendor/client names
+  [/Paylocity/gi, "an HR platform"],
+  [/\bGSS\b/g, "a partner system"],
+  [/Flobotics/gi, "an RPA vendor"],
+  [/PPAP automation/gi, "process automation"],
+  [/\bPPAP\b/g, "process approval"],
+  [/Composio/gi, "an integration service"],
+  // Post-anonymization cleanup
   [/for the platform's agent system/gi, "for the agent system"],
   [/demo scripts for the platform/gi, "demo scripts for the product"],
 ];
@@ -154,19 +163,43 @@ function generatePosts(data: InsightsData): BlogPost[] {
   const today = new Date().toISOString().split("T")[0];
   const posts: BlogPost[] = [];
 
-  const totalSessions = data.project_areas.areas.reduce(
+  const areaSessions = data.project_areas.areas.reduce(
     (s, a) => s + a.session_count,
     0
+  );
+  // Try to extract total sessions from narrative (covers sessions not in top areas)
+  const narrativeSessions = extractNumber(
+    data.interaction_style.narrative,
+    /(\d+)\s+sessions/
+  );
+  // Also try from on_the_horizon intro
+  const horizonSessions = extractNumber(
+    data.on_the_horizon.intro,
+    /(\d+)\s+sessions/
+  );
+  const totalSessions = Math.max(
+    areaSessions,
+    parseInt(narrativeSessions || "0"),
+    parseInt(horizonSessions || "0")
   );
   const projectCount = data.project_areas.areas.length;
 
   const commits =
     extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
     "256";
+  // Try multiple patterns for hours
   const hours =
     extractNumber(
       data.interaction_style.narrative,
       /(\d[\d,]+)\s+hours?\s+of\s+usage/
+    ) ||
+    extractNumber(
+      data.on_the_horizon.intro,
+      /(\d[\d,]+)\s+hours/
+    ) ||
+    extractNumber(
+      data.interaction_style.narrative,
+      /([\d,]+)\s+hours/
     ) || "974";
   const buggyCode =
     extractNumber(
@@ -993,17 +1026,38 @@ function main() {
     JSON.stringify(index, null, 2)
   );
 
-  const totalSessions = data.project_areas.areas.reduce(
+  const areaSessions2 = data.project_areas.areas.reduce(
     (sum, a) => sum + a.session_count,
     0
   );
-  const commits =
+  const narrativeSessions2 = extractNumber(
+    data.interaction_style.narrative,
+    /(\d+)\s+sessions/
+  );
+  const horizonSessions2 = extractNumber(
+    data.on_the_horizon.intro,
+    /(\d+)\s+sessions/
+  );
+  const totalSessions2 = Math.max(
+    areaSessions2,
+    parseInt(narrativeSessions2 || "0"),
+    parseInt(horizonSessions2 || "0")
+  );
+  const commits2 =
     extractNumber(data.interaction_style.narrative, /(\d+)\s+commits/) ||
     "256";
-  const hours =
+  const hours2 =
     extractNumber(
       data.interaction_style.narrative,
       /(\d[\d,]+)\s+hours?\s+of\s+usage/
+    ) ||
+    extractNumber(
+      data.on_the_horizon.intro,
+      /(\d[\d,]+)\s+hours/
+    ) ||
+    extractNumber(
+      data.interaction_style.narrative,
+      /([\d,]+)\s+hours/
     ) || "974";
   const messages =
     extractNumber(
@@ -1012,11 +1066,11 @@ function main() {
     ) || "3084";
 
   const stats: SiteStats = {
-    totalSessions,
+    totalSessions: totalSessions2,
     totalMessages: parseInt(messages.replace(/,/g, "")),
-    totalHours: parseInt(hours.replace(/,/g, "")),
-    totalCommits: parseInt(commits.replace(/,/g, "")),
-    dateRange: "Dec 31 – Feb 24",
+    totalHours: parseInt(hours2.replace(/,/g, "")),
+    totalCommits: parseInt(commits2.replace(/,/g, "")),
+    dateRange: "Dec 31 – Feb 27",
     projectCount: data.project_areas.areas.length,
   };
   fs.writeFileSync(
