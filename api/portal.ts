@@ -1,17 +1,16 @@
-import { stripe } from "./_stripe";
-import { supabase } from "./_supabase";
+import { getStripe } from "./_stripe";
+import { getSupabase } from "./_supabase";
 
 const SITE_URL = process.env.SITE_URL || "https://insights.codes";
 
 export async function POST(request: Request) {
   try {
+    const stripe = getStripe();
+    const supabase = getSupabase();
     const { email } = await request.json();
 
     if (!email) {
-      return new Response(
-        JSON.stringify({ error: "Email required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "Email required" }, { status: 400 });
     }
 
     const { data: subscriber } = await supabase
@@ -21,10 +20,7 @@ export async function POST(request: Request) {
       .single();
 
     if (!subscriber?.stripe_customer_id) {
-      return new Response(
-        JSON.stringify({ error: "No active support subscription found" }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "No active support subscription found" }, { status: 404 });
     }
 
     const session = await stripe.billingPortal.sessions.create({
@@ -32,15 +28,12 @@ export async function POST(request: Request) {
       return_url: `${SITE_URL}/subscribe`,
     });
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return Response.json({ url: session.url });
   } catch (err) {
     console.error("Portal error:", err);
-    return new Response(
-      JSON.stringify({ error: "Something went wrong" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      { error: err instanceof Error ? err.message : "Something went wrong" },
+      { status: 500 }
     );
   }
 }

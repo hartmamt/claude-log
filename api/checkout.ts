@@ -1,24 +1,19 @@
-import { stripe } from "./_stripe";
+import { getStripe } from "./_stripe";
 
 const SITE_URL = process.env.SITE_URL || "https://insights.codes";
 
 export async function POST(request: Request) {
   try {
+    const stripe = getStripe();
     const { email, amount } = await request.json();
 
     if (!email || !amount) {
-      return new Response(
-        JSON.stringify({ error: "Email and amount required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "Email and amount required" }, { status: 400 });
     }
 
     const amountNum = Number(amount);
     if (isNaN(amountNum) || amountNum < 1 || amountNum > 1000) {
-      return new Response(
-        JSON.stringify({ error: "Amount must be between $1 and $1000" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "Amount must be between $1 and $1000" }, { status: 400 });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -43,15 +38,12 @@ export async function POST(request: Request) {
       cancel_url: `${SITE_URL}/subscribe`,
     });
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return Response.json({ url: session.url });
   } catch (err) {
     console.error("Checkout error:", err);
-    return new Response(
-      JSON.stringify({ error: "Something went wrong" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      { error: err instanceof Error ? err.message : "Something went wrong" },
+      { status: 500 }
     );
   }
 }
