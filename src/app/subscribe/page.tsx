@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { SubscribeForm } from "@/components/blog/SubscribeForm";
 import { SupportTiers } from "@/components/blog/SupportTiers";
+import { ManageSubscription } from "@/components/blog/ManageSubscription";
 import { SubscribeStatus } from "@/components/blog/SubscribeStatus";
 
 export const metadata: Metadata = {
@@ -51,6 +52,18 @@ export default function SubscribePage() {
 
       {/* Support tiers */}
       <SupportTiers />
+
+      {/* Divider */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-text-muted text-xs font-mono">
+          already subscribed?
+        </span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
+      {/* Manage subscription */}
+      <ManageSubscription />
 
       {/* Back link */}
       <div className="text-center pt-4">
