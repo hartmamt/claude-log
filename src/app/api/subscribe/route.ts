@@ -1,5 +1,5 @@
-import { getSupabase } from "./_supabase";
-import { getResend } from "./_resend";
+import { getSupabase } from "@/lib/supabase";
+import { getResend } from "@/lib/resend";
 
 const SITE_URL = process.env.SITE_URL || "https://insights.codes";
 
@@ -19,7 +19,6 @@ export async function POST(request: Request) {
       return Response.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    // Upsert subscriber (if they unsubscribed before, re-create as pending)
     const { data: subscriber, error: dbError } = await supabase
       .from("subscribers")
       .upsert(
@@ -39,7 +38,6 @@ export async function POST(request: Request) {
       return Response.json({ error: "Something went wrong" }, { status: 500 });
     }
 
-    // Add to Resend audience
     if (audienceId) {
       try {
         await resend.contacts.create({
@@ -47,11 +45,10 @@ export async function POST(request: Request) {
           email: email.toLowerCase().trim(),
         });
       } catch {
-        // Contact may already exist — that's fine
+        // Contact may already exist
       }
     }
 
-    // Send confirmation email
     await resend.emails.send({
       from: "insights.codes <hello@insights.codes>",
       to: email.toLowerCase().trim(),

@@ -1,5 +1,5 @@
-import { getStripe } from "./_stripe";
-import { getSupabase } from "./_supabase";
+import { getStripe } from "@/lib/stripe";
+import { getSupabase } from "@/lib/supabase";
 import type Stripe from "stripe";
 
 export async function POST(request: Request) {

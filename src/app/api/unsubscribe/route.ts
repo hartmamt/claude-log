@@ -1,7 +1,6 @@
-import { getSupabase } from "./_supabase";
-import { getResend } from "./_resend";
-
-const SITE_URL = process.env.SITE_URL || "https://insights.codes";
+import { getSupabase } from "@/lib/supabase";
+import { getResend } from "@/lib/resend";
+import { redirect } from "next/navigation";
 
 export async function GET(request: Request) {
   try {
@@ -12,7 +11,7 @@ export async function GET(request: Request) {
     const token = url.searchParams.get("token");
 
     if (!token) {
-      return Response.redirect(`${SITE_URL}/subscribe?error=invalid`, 302);
+      redirect(`/subscribe?error=invalid`);
     }
 
     const { data: subscriber, error } = await supabase
@@ -22,7 +21,7 @@ export async function GET(request: Request) {
       .single();
 
     if (error || !subscriber) {
-      return Response.redirect(`${SITE_URL}/subscribe?error=invalid`, 302);
+      redirect(`/subscribe?error=invalid`);
     }
 
     await supabase
@@ -46,9 +45,8 @@ export async function GET(request: Request) {
       }
     }
 
-    return Response.redirect(`${SITE_URL}/subscribe?unsubscribed=true`, 302);
+    redirect(`/subscribe?unsubscribed=true`);
   } catch (err) {
-    console.error("Unsubscribe error:", err);
-    return Response.redirect(`${SITE_URL}/subscribe?error=server`, 302);
+    throw err;
   }
 }

@@ -1,4 +1,4 @@
-import { getStripe } from "./_stripe";
+import { getStripe } from "@/lib/stripe";
 
 const SITE_URL = process.env.SITE_URL || "https://insights.codes";
 

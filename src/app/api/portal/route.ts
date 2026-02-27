@@ -1,5 +1,5 @@
-import { getStripe } from "./_stripe";
-import { getSupabase } from "./_supabase";
+import { getStripe } from "@/lib/stripe";
+import { getSupabase } from "@/lib/supabase";
 
 const SITE_URL = process.env.SITE_URL || "https://insights.codes";
 
