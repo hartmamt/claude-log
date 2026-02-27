@@ -1,19 +1,36 @@
+import fs from "fs";
+import path from "path";
 import Link from "next/link";
+import Image from "next/image";
 import type { BlogPost } from "@/types";
 import { colorMap, iconMap } from "@/lib/theme";
 
 type PostMeta = Omit<BlogPost, "content">;
 
+function hasOgImage(slug: string): boolean {
+  return fs.existsSync(path.join(process.cwd(), "public", "og", `${slug}.png`));
+}
+
 export function PostCard({ post, featured = false }: { post: PostMeta; featured?: boolean }) {
   const color = colorMap[post.categoryColor] || "text-accent";
   const icon = iconMap[post.icon] || ">>";
+  const showImage = hasOgImage(post.slug);
 
   if (featured) {
     return (
       <Link
         href={`/posts/${post.slug}`}
-        className="card block hover:border-accent/30 transition-all group"
+        className="card block hover:border-accent/30 transition-all group overflow-hidden"
       >
+        {showImage && (
+          <Image
+            src={`/og/${post.slug}.png`}
+            alt=""
+            width={1200}
+            height={630}
+            className="w-full border-b border-border"
+          />
+        )}
         <div className="p-6 md:p-8">
           <div className="flex items-center gap-3 mb-4 text-xs font-mono">
             <span className={`font-semibold ${color}`}>
@@ -54,8 +71,17 @@ export function PostCard({ post, featured = false }: { post: PostMeta; featured?
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="card block hover:border-accent/30 transition-all group"
+      className="card block hover:border-accent/30 transition-all group overflow-hidden"
     >
+      {showImage && (
+        <Image
+          src={`/og/${post.slug}.png`}
+          alt=""
+          width={1200}
+          height={630}
+          className="w-full border-b border-border"
+        />
+      )}
       <div className="p-5">
         <div className="flex items-center gap-2 mb-3 text-xs font-mono">
           <span className={`font-semibold ${color}`}>

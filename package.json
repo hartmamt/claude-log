@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "prebuild": "tsx scripts/generate-posts.ts",
+    "prebuild": "tsx scripts/generate-posts.ts && tsx scripts/generate-post-images.ts",
     "build": "next build",
     "generate": "tsx scripts/generate-posts.ts",
+    "generate:images": "tsx scripts/generate-post-images.ts",
     "start": "next start",
     "lint": "eslint"
   },
