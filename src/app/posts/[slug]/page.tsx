@@ -10,6 +10,7 @@ import { CopyMarkdownButton } from "@/components/blog/CopyMarkdownButton";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { SubscribeForm } from "@/components/blog/SubscribeForm";
+import { MeterGate } from "@/components/blog/MeterGate";
 import { colorMap, iconMap } from "@/lib/theme";
 
 function hasOgImage(slug: string): boolean {
@@ -186,7 +187,9 @@ export default async function PostPage({
           )}
 
           {/* Post content */}
-          <PostContent content={post.content} />
+          <MeterGate slug={slug}>
+            <PostContent content={post.content} />
+          </MeterGate>
         </article>
 
         {/* Bottom share */}
