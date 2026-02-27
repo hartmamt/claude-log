@@ -1,0 +1,23 @@
+{
+  "slug": "two-slice-team",
+  "title": "The Two-Slice Team",
+  "subtitle": "Block just cut 4,000 people. Jack Dorsey says AI + smaller teams do more. Every runs 4 products with single-person teams. This is what comes next.",
+  "date": "2026-02-27",
+  "category": "Essay",
+  "categoryColor": "red",
+  "icon": "zap",
+  "readingTime": "4 min read",
+  "content": "Block just cut 4,000 people. Nearly half their workforce. Gone in a single round.\n\nJack Dorsey's reason? AI tools and smaller teams can do more — and do it better. He thinks most companies will follow within a year.\n\n## Two Pizzas to Two Slices\n\nIn 2002, Jeff Bezos introduced the two-pizza rule at Amazon: if a team can't be fed with two pizzas, it's too big. That became gospel for 24 years. Small teams. Clear ownership. Minimal coordination overhead.\n\nThe two-slice team is what replaces it.\n\n[Every's article](https://every.to/chain-of-thought/the-two-slice-team) lays out the math. They run four software products. Each is owned by a single person. 99% of the code is written by AI agents. One of their apps — Monologue — processes 30,000 transcriptions a day across 143,000 lines of code, built and maintained by one developer working with Claude and Codex.\n\nThat's not a vibe coding demo. That's production software at scale.\n\n## I See This in My Own Data\n\nMy /insights data tells the same story from the other side.\n\n**338 sessions. 924 hours. 256 commits.** I'm building full features — Stripe integrations, deployment pipelines, knowledge management systems — in single sessions. I run multiple Claude instances in parallel. I ship daily.\n\nThe pattern isn't \"I write code faster.\" It's that the unit of work changed. I don't implement functions. I describe outcomes and course-correct. The 72-second thinking loop from my data is the proof: Claude produces, I evaluate, I redirect. The cycle time on a bug fix dropped from hours to minutes.\n\nI'm one person doing what used to require a small team. Not because I'm better — because the tooling changed the economics.\n\n## The Warning\n\nThis cuts two ways.\n\n**If you're an engineer** and you're not learning how to work alongside AI agents right now, you're going to get lapped. The people keeping their seats aren't the ones writing the most code — they're the ones orchestrating the most output. The skill isn't typing. It's directing.\n\n**If you're a company** still staffing teams the old way, you're building in overhead that your competitors are about to shed. Dorsey said it himself — he'd rather get there on his own terms than be forced into it reactively.\n\nEvery's model is instructive: design, growth, and marketing function as internal agencies that flex across products. External freelancers can onboard to codebases in hours using AI instead of weeks. The org chart compresses around output, not headcount.\n\n## What This Actually Looks Like\n\nEvery built Proof — an agent-native markdown editor — as a side project. Work that would have taken 3-4 engineers over 6 months got done by one person in spare time.\n\nThat's not efficiency. That's a category change. When a side project can match a full team's output, the team doesn't get \"more efficient.\" It gets smaller.\n\nThe two-pizza team had a 24-year run. The two-slice team is what comes next.\n\n---\n\n*Source: [The Two-Slice Team](https://every.to/chain-of-thought/the-two-slice-team) by Every*",
+  "highlights": [
+    "4,000 jobs cut at Block",
+    "99% AI-written code",
+    "143k lines, 1 dev",
+    "Two-slice team"
+  ],
+  "keyTakeaway": "The people keeping their seats aren't the ones writing the most code — they're the ones orchestrating the most output.",
+  "stats": [
+    { "label": "Block Layoffs", "value": "4,000", "color": "red" },
+    { "label": "AI Code", "value": "99%", "color": "cyan" },
+    { "label": "Lines / 1 Dev", "value": "143k", "color": "green" }
+  ]
+}
