@@ -1,6 +1,7 @@
 import { getPostsIndex, getSiteStats, getPersonalPostsIndex } from "@/lib/data";
 import { PostCard } from "@/components/blog/PostCard";
 import { StatsBar } from "@/components/blog/StatsBar";
+import { SubscribeForm } from "@/components/blog/SubscribeForm";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -28,6 +29,7 @@ export default function HomePage() {
           Real patterns from real projects. {stats.totalSessions} sessions, {stats.totalCommits} commits, and {stats.dateRange} of building software with AI as an engineering partner.
         </p>
         <StatsBar stats={stats} />
+        <SubscribeForm />
       </div>
 
       {/* Personal essays */}

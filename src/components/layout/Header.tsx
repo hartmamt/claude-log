@@ -23,6 +23,12 @@ export function Header() {
             changelog
           </Link>
           <Link
+            href="/subscribe"
+            className="text-accent hover:text-accent/80 transition-colors"
+          >
+            subscribe
+          </Link>
+          <Link
             href="/about"
             className="text-text-muted hover:text-foreground transition-colors"
           >
