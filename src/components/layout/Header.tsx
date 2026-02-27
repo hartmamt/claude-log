@@ -17,6 +17,12 @@ export function Header() {
             posts
           </Link>
           <Link
+            href="/wrapped"
+            className="text-secondary hover:text-foreground transition-colors font-semibold"
+          >
+            wrapped
+          </Link>
+          <Link
             href="/changelog"
             className="text-text-muted hover:text-foreground transition-colors"
           >

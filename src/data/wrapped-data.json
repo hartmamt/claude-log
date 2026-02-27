@@ -1,0 +1,63 @@
+{
+  "hero": {
+    "sessions": 338,
+    "hours": 924,
+    "commits": 256,
+    "messages": 2784,
+    "dateRange": "Dec 31 2025 — Feb 27 2026"
+  },
+  "clock": {
+    "periods": [
+      { "label": "Morning", "sublabel": "6am–noon", "value": 851, "color": "amber" },
+      { "label": "Afternoon", "sublabel": "noon–6pm", "value": 779, "color": "accent" },
+      { "label": "Evening", "sublabel": "6pm–midnight", "value": 1140, "color": "secondary" },
+      { "label": "Night", "sublabel": "midnight–6am", "value": 14, "color": "muted" }
+    ],
+    "peakLabel": "Evening",
+    "peakValue": 1140
+  },
+  "multiClaude": {
+    "overlapEvents": 81,
+    "sessionsInvolved": 107,
+    "percentOfMessages": 13
+  },
+  "responseTime": {
+    "median": 72.2,
+    "modes": [
+      { "label": "Quick fire", "sublabel": "< 10 seconds", "count": 180, "color": "accent" },
+      { "label": "Core loop", "sublabel": "30s – 2 min", "count": 572, "color": "secondary" },
+      { "label": "Walked away", "sublabel": "15+ minutes", "count": 127, "color": "amber" }
+    ]
+  },
+  "goals": {
+    "items": [
+      { "label": "Bug Fix", "value": 42, "color": "red" },
+      { "label": "Git Operations", "value": 32, "color": "accent" },
+      { "label": "Feature Implementation", "value": 28, "color": "secondary" },
+      { "label": "Deployment", "value": 25, "color": "amber" }
+    ]
+  },
+  "language": {
+    "typescript": 4139,
+    "javascript": 110,
+    "ratio": "38:1",
+    "markdown": 1500
+  },
+  "toolkit": {
+    "tools": [
+      { "label": "Bash", "value": 4135, "color": "accent" },
+      { "label": "Read", "value": 3412, "color": "secondary" },
+      { "label": "Edit", "value": 2682, "color": "amber" },
+      { "label": "Write", "value": 1247, "color": "red" }
+    ]
+  },
+  "errors": {
+    "failures": 323,
+    "sessions": 338,
+    "rejectionsOnly": 6
+  },
+  "punchline": {
+    "headline": "Built a feature around a file that doesn't exist",
+    "detail": "Claude confidently implemented a complete upload-and-parse system for a JSON data file — only for me to point out that the insights command only generates an HTML report. The entire feature had to be reverted."
+  }
+}
