@@ -6,7 +6,7 @@ export function Header() {
       <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 hover:opacity-80">
           <span className="font-mono text-accent font-bold text-base tracking-tight">
-            /insights
+            insights.codes
           </span>
         </Link>
         <nav className="flex items-center gap-6 text-sm">

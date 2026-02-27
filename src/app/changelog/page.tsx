@@ -3,7 +3,7 @@ import { getChangelog } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Changelog - /insights",
+  title: "Changelog - insights.codes",
   description: "What changed each time the site updates",
 };
 

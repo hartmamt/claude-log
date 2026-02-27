@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "/insights - Building in Public with Claude Code",
+  title: "insights.codes - Notes on building with AI",
 };
 
 export default function HomePage() {
@@ -21,14 +21,11 @@ export default function HomePage() {
       {/* Hero */}
       <div className="space-y-5">
         <h1 className="font-mono text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-          Building in Public<br />
-          <span className="text-accent">with Claude Code</span>
+          Notes on building<br />
+          <span className="text-accent">with AI</span>
         </h1>
         <p className="text-text-muted text-base leading-relaxed max-w-xl">
-          {stats.totalSessions} sessions. {stats.totalCommits} commits. {stats.dateRange}.
-          Real insights from using an AI coding assistant as a full-stack engineering partner.
-          Generated from{" "}
-          <code className="font-mono text-accent text-sm">/insights</code>.
+          Real patterns from real projects. {stats.totalSessions} sessions, {stats.totalCommits} commits, and {stats.dateRange} of building software with AI as an engineering partner.
         </p>
         <StatsBar stats={stats} />
       </div>

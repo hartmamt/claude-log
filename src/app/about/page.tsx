@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About - /insights",
+  title: "About - insights.codes",
   description: "About Matt Hartman and this site",
 };
 
@@ -59,17 +59,17 @@ export default function AboutPage() {
             About This Site
           </h2>
           <p>
-            This is a dev log generated entirely from Claude Code's{" "}
-            <code className="font-mono text-accent text-sm">/insights</code>{" "}
-            command. Every post, stat, and changelog entry is auto-generated
-            from real session data &mdash; anonymized, converted to first
-            person, and published as a static Next.js site.
+
+            A mix of auto-generated insights from Claude Code session data
+            and hand-written essays about building software with AI. The
+            data-driven posts are anonymized, converted to first person, and
+            published as a static Next.js site.
           </p>
           <p>
-            It's an experiment in building in public with AI. The site itself
-            was built with Claude Code. The content comes from using Claude Code.
-            It updates itself when I run{" "}
-            <code className="font-mono text-accent text-sm">/update-site</code>.
+            The site itself was built with Claude Code. It's notes on what
+            it's actually like to use AI as an engineering partner &mdash;
+            the patterns that work, the friction that doesn't, and the
+            bigger questions about where this is all heading.
           </p>
         </div>
 

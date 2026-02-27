@@ -53,7 +53,7 @@ async function generateOG() {
                 letterSpacing: "-0.02em",
                 marginBottom: "16px",
               },
-              children: "/insights",
+              children: "insights.codes",
             },
           },
           {
@@ -66,7 +66,7 @@ async function generateOG() {
                 marginBottom: "40px",
                 lineHeight: 1.3,
               },
-              children: "Building in Public with Claude Code",
+              children: "Notes on building with AI",
             },
           },
           {
@@ -79,7 +79,7 @@ async function generateOG() {
                 maxWidth: "800px",
               },
               children:
-                "Real insights from using an AI coding assistant as a full-stack engineering partner.",
+                "Real patterns from real projects.",
             },
           },
           {
@@ -96,7 +96,7 @@ async function generateOG() {
                   type: "span",
                   props: {
                     style: { color: "#10b981" },
-                    children: "slashinsights.codes",
+                    children: "insights.codes",
                   },
                 },
                 {

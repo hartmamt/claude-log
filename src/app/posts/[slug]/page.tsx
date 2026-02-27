@@ -26,7 +26,7 @@ export async function generateMetadata({
   const post = getPost(slug);
   const ogImage = hasOgImage(slug) ? `/og/${slug}.png` : "/og.png";
   return {
-    title: post ? `${post.title} - /insights` : "Post - /insights",
+    title: post ? `${post.title} - insights.codes` : "Post - insights.codes",
     description: post?.subtitle,
     openGraph: {
       title: post?.title,

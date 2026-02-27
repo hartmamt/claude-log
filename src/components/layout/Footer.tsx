@@ -48,7 +48,7 @@ export function Footer() {
           </div>
         </div>
         <div className="text-text-muted">
-          generated from{" "}
+          built with{" "}
           <a
             href="https://github.com/anthropics/claude-code"
             target="_blank"
@@ -56,8 +56,7 @@ export function Footer() {
             className="text-accent hover:underline"
           >
             claude code
-          </a>{" "}
-          /insights
+          </a>
         </div>
       </div>
     </footer>
