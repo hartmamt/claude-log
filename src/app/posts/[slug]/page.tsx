@@ -7,7 +7,6 @@ import { getAllPostSlugs, getPost, getPostsIndex } from "@/lib/data";
 import { PostContent } from "@/components/blog/PostContent";
 import { CopyMarkdownButton } from "@/components/blog/CopyMarkdownButton";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
-import { SubscribeForm } from "@/components/blog/SubscribeForm";
 import { colorMap, iconMap } from "@/lib/theme";
 
 function hasOgImage(slug: string): boolean {
@@ -163,14 +162,6 @@ export default async function PostPage({
           {/* Post content */}
           <PostContent content={post.content} />
         </article>
-
-        {/* Subscribe CTA */}
-        <div className="mt-12 pt-8 border-t border-border space-y-3">
-          <p className="text-text-muted text-sm font-mono">
-            Get notified when new posts go live.
-          </p>
-          <SubscribeForm />
-        </div>
 
         {/* Navigation */}
         <div className="flex justify-between mt-10 gap-4">

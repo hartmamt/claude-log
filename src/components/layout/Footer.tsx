@@ -1,15 +1,11 @@
 import { getSiteStats } from "@/lib/data";
-import { SubscribeForm } from "@/components/blog/SubscribeForm";
 
 export function Footer() {
   const stats = getSiteStats();
 
   return (
     <footer className="border-t border-border mt-auto">
-      <div className="max-w-3xl mx-auto px-6 py-6 flex flex-col gap-4 text-xs text-text-muted">
-        <div className="py-2">
-          <SubscribeForm compact />
-        </div>
+      <div className="max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 text-xs text-text-muted">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span>
