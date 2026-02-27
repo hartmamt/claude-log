@@ -7,6 +7,22 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Simple in-memory rate limiter: max 3 requests per email per 15 minutes
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
+const RATE_LIMIT_MAX = 3;
+
+function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = getSupabase();
@@ -14,16 +30,35 @@ export async function POST(request: Request) {
     const audienceId = process.env.RESEND_AUDIENCE_ID;
 
     const { email } = await request.json();
+    const normalizedEmail = typeof email === "string" ? email.toLowerCase().trim() : "";
 
-    if (!email || !isValidEmail(email)) {
+    if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
       return Response.json({ error: "Valid email required" }, { status: 400 });
     }
 
+    if (isRateLimited(normalizedEmail)) {
+      // Return success to avoid leaking rate limit info
+      return Response.json({ ok: true });
+    }
+
+    // Check if already confirmed — don't reset them to pending
+    const { data: existing } = await supabase
+      .from("subscribers")
+      .select("id, token, status")
+      .eq("email", normalizedEmail)
+      .single();
+
+    if (existing?.status === "confirmed") {
+      // Already confirmed — silently succeed
+      return Response.json({ ok: true });
+    }
+
+    // Upsert for new or unsubscribed/pending users
     const { data: subscriber, error: dbError } = await supabase
       .from("subscribers")
       .upsert(
         {
-          email: email.toLowerCase().trim(),
+          email: normalizedEmail,
           status: "pending",
           confirmed_at: null,
           unsubscribed_at: null,
@@ -42,7 +77,7 @@ export async function POST(request: Request) {
       try {
         await resend.contacts.create({
           audienceId,
-          email: email.toLowerCase().trim(),
+          email: normalizedEmail,
         });
       } catch {
         // Contact may already exist
@@ -51,7 +86,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: "insights.codes <hello@insights.codes>",
-      to: email.toLowerCase().trim(),
+      to: normalizedEmail,
       subject: "Confirm your subscription to insights.codes",
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
@@ -73,9 +108,6 @@ export async function POST(request: Request) {
     return Response.json({ ok: true });
   } catch (err) {
     console.error("Subscribe error:", err);
-    return Response.json(
-      { error: err instanceof Error ? err.message : "Something went wrong" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

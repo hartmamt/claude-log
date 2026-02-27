@@ -46,8 +46,7 @@ export async function GET(request: Request) {
               Thanks for subscribing to insights.codes. You'll get an email when new posts go live.
             </p>
             <p style="color: #a3a3a3; line-height: 1.6;">
-              All content is free, always. If you'd like to support the blog, you can
-              <a href="${SITE_URL}/subscribe" style="color: #10b981;">become a supporter</a>.
+              All content is free, always.
             </p>
             <p style="color: #737373; font-size: 13px; margin-top: 30px;">
               <a href="${SITE_URL}/api/unsubscribe?token=${subscriber.token}" style="color: #737373;">Unsubscribe</a>
