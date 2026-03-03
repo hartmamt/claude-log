@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { CopyButton } from "./CopyButton";
+import { TerminalAnimation } from "./TerminalAnimation";
 import type { Components } from "react-markdown";
 
 // Parse custom callout and prompt directives from markdown
@@ -28,6 +29,24 @@ function preprocessContent(content: string): string {
       `<span data-stat-value="${value}" data-stat-label="${label}"></span>`
   );
 
+  // Convert :::terminal{title="..."} ... ::: to HTML markers with JSON-encoded lines
+  processed = processed.replace(
+    /:::terminal\{title="([^"]+)"\}\n([\s\S]*?):::/g,
+    (_match, title, body) => {
+      const lines = body
+        .trim()
+        .split("\n")
+        .map((line: string) => {
+          if (line.startsWith("$ ")) {
+            return { type: "input", text: line.slice(2) };
+          }
+          return { type: "output", text: line };
+        });
+      const encoded = JSON.stringify(lines).replace(/"/g, "&quot;");
+      return `<div data-terminal="${encoded}" data-terminal-title="${title.replace(/"/g, "&quot;")}"></div>`;
+    }
+  );
+
   return processed;
 }
 
@@ -35,7 +54,13 @@ const components: Components = {
   div: ({ node, ...props }) => {
     const calloutType = (node?.properties?.dataCallout as string) || "";
     const isPrompt = node?.properties?.dataPrompt === "true";
+    const terminalData = node?.properties?.dataTerminal as string;
+    const terminalTitle = node?.properties?.dataTerminalTitle as string;
 
+    if (terminalData) {
+      const lines = JSON.parse(terminalData.replace(/&quot;/g, '"'));
+      return <TerminalAnimation title={terminalTitle || "Terminal"} lines={lines} />;
+    }
     if (calloutType) {
       return (
         <div className={`callout callout-${calloutType}`} {...props} />
